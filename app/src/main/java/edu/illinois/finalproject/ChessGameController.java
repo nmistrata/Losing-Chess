@@ -32,13 +32,13 @@ public class ChessGameController {
     public static final String BOARD_DATA_KEY = "booardData";
 
     //Board squares a found using charAt((BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX)
-    String boardData;
+    private String boardData;
 
     private String lobbyName;
-    int id;
-    ChessGameDisplayer displayer;
-    FirebaseDatabase database = FirebaseDatabase.getInstance();
-    DatabaseReference gameRef;
+    private int id;
+    private ChessGameDisplayer displayer;
+    private FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private DatabaseReference gameRef;
 
 
     //used for creating games
@@ -46,16 +46,13 @@ public class ChessGameController {
         this.lobbyName = lobbyName;
         this.id = id;
         this.displayer = displayer;
-        boardData = "";
-        for (int i = 0; i < BOARD_LENGTH; i++) {
-            for (int j = 0; j < BOARD_LENGTH; j++) {
-                boardData += EMPTY_SQUARE;
-            }
-        }
+        setupEmptyBoard();
 
+        gameRef = database.getReference(""+ id);
+        gameRef.child(LOBBY_NAME_KEY).setValue(lobbyName);
+        gameRef.child(WHITE_TO_MOVE_KEY).setValue(true);
+        gameRef.child(GAME_STARTED_KEY).setValue(false);
         setupStartingPos();
-
-        setupDatabase();
         setupBoardListener();
     }
 
@@ -63,28 +60,29 @@ public class ChessGameController {
     public ChessGameController(int id, ChessGameDisplayer displayer) {
         this.id = id;
         this.displayer = displayer;
+        setupEmptyBoard();
+
+        gameRef = database.getReference("" + id);
+        gameRef.child(GAME_STARTED_KEY).setValue(true);
+        setupBoardListener();
+
+    }
+
+    private void setupEmptyBoard() {
         boardData = "";
         for (int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
                 boardData += EMPTY_SQUARE;
             }
         }
-
-        gameRef = database.getReference("" + id);
-        setupBoardListener();
-        gameRef.child(GAME_STARTED_KEY).setValue(true);
     }
 
-    private void setupDatabase() {
-        gameRef = database.getReference(""+ id);
-        gameRef.child(LOBBY_NAME_KEY).setValue(lobbyName);
-        gameRef.child(WHITE_TO_MOVE_KEY).setValue(true);
-        gameRef.child(GAME_STARTED_KEY).setValue(false);
-        gameRef.child(BOARD_DATA_KEY).setValue(boardData);
-    }
-
-    public void updateDisplayer() {
+    private void updateDisplayer() {
         displayer.renderBoard(boardData);
+    }
+
+    private void pushBoardToFirebase() {
+        gameRef.child(BOARD_DATA_KEY).setValue(boardData);
     }
 
     private void setupStartingPos(){
@@ -116,6 +114,7 @@ public class ChessGameController {
         boardBuilder.setCharAt((BOARD_LENGTH * 7) + 7, WHITE_ROOK);
 
         boardData = boardBuilder.toString();
+        pushBoardToFirebase();
     }
 
     private void setupBoardListener() {
