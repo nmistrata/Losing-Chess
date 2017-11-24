@@ -1,7 +1,6 @@
 package edu.illinois.finalproject;
 
 import android.view.View;
-import android.widget.ImageView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -42,9 +41,9 @@ public class ChessGameController {
     private ChessGameDisplayer displayer;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference gameRef;
-    private boolean myTurn = true;
-    private boolean playingWhite = true;
-    private SquareImageWrapper selectedSquare = null;
+    private boolean myTurn;
+    private boolean playingWhite;
+    private SquareImageWrapper curSelectedSquare = null;
 
     private SquareImageWrapper[][] squareImageWrappers;
 
@@ -53,6 +52,7 @@ public class ChessGameController {
     public ChessGameController(int id, ChessGameDisplayer displayer, String lobbyName) {
         this.lobbyName = lobbyName;
         this.id = id;
+        playingWhite = true;
         this.displayer = displayer;
         squareImageWrappers = displayer.getBoardDisplay();
         setUpSquareClickListeners();
@@ -64,12 +64,13 @@ public class ChessGameController {
         gameRef.child(WHITE_TO_MOVE_KEY).setValue(true);
         gameRef.child(GAME_STARTED_KEY).setValue(false);
         setupStartingPos();
-        setupBoardListener();
+        setupDatabaseListeners();
     }
 
     //Used for joining games
     public ChessGameController(int id, ChessGameDisplayer displayer) {
         this.id = id;
+        playingWhite = false;
         this.displayer = displayer;
         squareImageWrappers = displayer.getBoardDisplay();
         setUpSquareClickListeners();
@@ -78,7 +79,7 @@ public class ChessGameController {
 
         gameRef = database.getReference("" + id);
         gameRef.child(GAME_STARTED_KEY).setValue(true);
-        setupBoardListener();
+        setupDatabaseListeners();
     }
 
     private void setupEmptyBoard() {
@@ -130,12 +131,23 @@ public class ChessGameController {
         pushBoardToFirebase();
     }
 
-    private void setupBoardListener() {
+    private void setupDatabaseListeners() {
         gameRef.child(BOARD_DATA_KEY).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boardData = dataSnapshot.getValue(String.class);
                 updateDisplayer();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
+        gameRef.child(WHITE_TO_MOVE_KEY).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean whiteToMove = dataSnapshot.getValue(Boolean.class);
+                myTurn = (whiteToMove == playingWhite);
             }
 
             @Override
@@ -150,13 +162,20 @@ public class ChessGameController {
                 curImageWrapper.getImageView().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (selectedSquare == null) {
-                            curImageWrapper.highlight();
-                            selectedSquare = curImageWrapper;
+                        if ((curSelectedSquare == null &&
+                            boardData.charAt(curImageWrapper.getIndexInString()) == EMPTY_SQUARE) ||
+                            !myTurn) {
+                            return;
+                        }
+
+                        if (curSelectedSquare == null) {
+                                curImageWrapper.highlight();
+                                curSelectedSquare = curImageWrapper;
                         } else {
-                            movePiece(selectedSquare.getIndexInString(), curImageWrapper.getIndexInString());
-                            selectedSquare.unhighlight();
-                            selectedSquare = null;
+                            makeMove(curSelectedSquare.getIndexInString(),
+                                         curImageWrapper.getIndexInString());
+                            curSelectedSquare.unhighlight();
+                            curSelectedSquare = null;
                         }
                     }
                 });
@@ -165,48 +184,47 @@ public class ChessGameController {
     }
 
     public void clickSpace(SquareImageWrapper squareImageWrapper) {
-        if (selectedSquare == null) {
+        if (curSelectedSquare == null) {
             squareImageWrapper.highlight();
-            selectedSquare = squareImageWrapper;
+            curSelectedSquare = squareImageWrapper;
         } else {
-            movePiece(selectedSquare.getIndexInString(), squareImageWrapper.getIndexInString());
-            selectedSquare.unhighlight();
-            selectedSquare = null;
+            movePiece(curSelectedSquare.getIndexInString(), squareImageWrapper.getIndexInString());
+            curSelectedSquare.unhighlight();
+            curSelectedSquare = null;
         }
     }
 
     //returns true if move was successful
     public boolean makeMove(int  startIndex, int endIndex) {
         movePiece(startIndex, endIndex);
-        if (myTurn)
-        return true;
-        ////////////////////////////////////
-        if (!myTurn) {
-            return true;
-        }
 
-        char pieceToMove = boardData.charAt(startIndex);
-        switch(pieceToMove) {
-            case WHITE_PAWN:
-                break;
-            case BLACK_PAWN:
-                break;
-            case WHITE_BISHOP:
-            case BLACK_BISHOP:
-                break;
-            case WHITE_KNIGHT:
-            case BLACK_KNIGHT:
-                break;
-            case WHITE_ROOK:
-            case BLACK_ROOK:
-                break;
-            case WHITE_KING:
-            case BLACK_KING:
-                break;
-            case WHITE_QUEEN:
-            case BLACK_QUEEN:
+//        char pieceToMove = boardData.charAt(startIndex);
+//        switch(pieceToMove) {
+//            case WHITE_PAWN:
+//                break;
+//            case BLACK_PAWN:
+//                break;
+//            case WHITE_BISHOP:
+//            case BLACK_BISHOP:
+//                break;
+//            case WHITE_KNIGHT:
+//            case BLACK_KNIGHT:
+//                break;
+//            case WHITE_ROOK:
+//            case BLACK_ROOK:
+//                break;
+//            case WHITE_KING:
+//            case BLACK_KING:
+//                break;
+//            case WHITE_QUEEN:
+//            case BLACK_QUEEN:
+//
+//        }
 
-        }
+
+        //essentially makes it not my turn locally and on the database.
+        myTurn = false;
+        gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
 
         return true;
     }
