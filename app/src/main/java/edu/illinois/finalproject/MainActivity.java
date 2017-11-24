@@ -16,11 +16,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        FirebaseDatabase database = FirebaseDatabase.getInstance();
-//        ChessGameController wrapper =new ChessGameController(null, "My game", 23);
-//        DatabaseReference gameWrapper = database.getReference("1");
-//        gameWrapper.setValue(wrapper);
-
         final GridLayout gridLayout = (GridLayout) findViewById(R.id.gridLayout);
         final Button joinButton = (Button) findViewById(R.id.joinGameButton);
 

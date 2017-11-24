@@ -4,9 +4,6 @@ import android.graphics.Color;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 
-/**
- * Created by nmist on 11/21/2017.
- */
 
 public class ChessGameDisplayer {
 
@@ -31,22 +28,22 @@ public class ChessGameDisplayer {
 
     //Board squares a found using charAt((BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX)
     private String curDisplayedGameState;
-    ImageView[][] boardDisplay;
+    SquareImageWrapper[][] boardDisplay;
 
     public ChessGameDisplayer(GridLayout gridLayout) {
-        boardDisplay = new ImageView[BOARD_LENGTH][BOARD_LENGTH];
+        boardDisplay = new SquareImageWrapper[BOARD_LENGTH][BOARD_LENGTH];
         for(int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
                 ImageView curSquare = new ImageView(gridLayout.getContext());
                 setUpSquare(curSquare);
-                boardDisplay[i][j] = curSquare;
-                gridLayout.addView(curSquare);
-
                 if((i + j) % 2 == 0) {
                     curSquare.setBackgroundColor(Color.rgb(200, 180, 120));
                 } else {
                     curSquare.setBackgroundColor(Color.rgb(110, 80, 0));
                 }
+                gridLayout.addView(curSquare);
+
+                boardDisplay[i][j] = new SquareImageWrapper(curSquare, i, j);
             }
         }
 
@@ -80,50 +77,53 @@ public class ChessGameDisplayer {
         curDisplayedGameState = newGameState;
     }
 
-    private void setSquareImage(ImageView square, int piece) {
+    private void setSquareImage(SquareImageWrapper square, int piece) {
         switch (piece) {
             case EMPTY_SQUARE:
-                square.setImageResource(android.R.color.transparent);
+                square.setImage(android.R.color.transparent);
                 break;
             case WHITE_PAWN:
-                square.setImageResource(R.drawable.white_pawn);
+                square.setImage(R.drawable.white_pawn);
                 break;
             case WHITE_KNIGHT:
-                square.setImageResource(R.drawable.white_knight);
+                square.setImage(R.drawable.white_knight);
                 break;
             case WHITE_BISHOP:
-                square.setImageResource(R.drawable.white_bishop);
+                square.setImage(R.drawable.white_bishop);
                 break;
             case WHITE_ROOK:
-                square.setImageResource(R.drawable.white_rook);
+                square.setImage(R.drawable.white_rook);
                 break;
             case WHITE_QUEEN:
-                square.setImageResource(R.drawable.white_queen);
+                square.setImage(R.drawable.white_queen);
                 break;
             case WHITE_KING:
-                square.setImageResource(R.drawable.white_king);
+                square.setImage(R.drawable.white_king);
                 break;
             case BLACK_PAWN:
-                square.setImageResource(R.drawable.black_pawn);
+                square.setImage(R.drawable.black_pawn);
                 break;
             case BLACK_KNIGHT:
-                square.setImageResource(R.drawable.black_knight);
+                square.setImage(R.drawable.black_knight);
                 break;
             case BLACK_BISHOP:
-                square.setImageResource(R.drawable.black_bishop);
+                square.setImage(R.drawable.black_bishop);
                 break;
             case BLACK_ROOK:
-                square.setImageResource(R.drawable.black_rook);
+                square.setImage(R.drawable.black_rook);
                 break;
             case BLACK_QUEEN:
-                square.setImageResource(R.drawable.black_queen);
+                square.setImage(R.drawable.black_queen);
                 break;
             case BLACK_KING:
-                square.setImageResource(R.drawable.black_king);
+                square.setImage(R.drawable.black_king);
                 break;
             default:
                 break;
         }
     }
 
+    public SquareImageWrapper[][] getBoardDisplay() {
+        return boardDisplay;
+    }
 }

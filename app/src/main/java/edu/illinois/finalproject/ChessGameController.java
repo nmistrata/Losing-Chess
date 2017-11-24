@@ -1,5 +1,8 @@
 package edu.illinois.finalproject;
 
+import android.view.View;
+import android.widget.ImageView;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,10 +38,15 @@ public class ChessGameController {
     private String boardData;
 
     private String lobbyName;
-    private int id;
+    private int id = 0;
     private ChessGameDisplayer displayer;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference gameRef;
+    private boolean myTurn = true;
+    private boolean playingWhite = true;
+    private SquareImageWrapper selectedSquare = null;
+
+    private SquareImageWrapper[][] squareImageWrappers;
 
 
     //used for creating games
@@ -46,6 +54,9 @@ public class ChessGameController {
         this.lobbyName = lobbyName;
         this.id = id;
         this.displayer = displayer;
+        squareImageWrappers = displayer.getBoardDisplay();
+        setUpSquareClickListeners();
+
         setupEmptyBoard();
 
         gameRef = database.getReference(""+ id);
@@ -60,12 +71,14 @@ public class ChessGameController {
     public ChessGameController(int id, ChessGameDisplayer displayer) {
         this.id = id;
         this.displayer = displayer;
+        squareImageWrappers = displayer.getBoardDisplay();
+        setUpSquareClickListeners();
+
         setupEmptyBoard();
 
         gameRef = database.getReference("" + id);
         gameRef.child(GAME_STARTED_KEY).setValue(true);
         setupBoardListener();
-
     }
 
     private void setupEmptyBoard() {
@@ -128,5 +141,85 @@ public class ChessGameController {
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+    }
+
+    private void setUpSquareClickListeners() {
+        for (int i = 0; i < BOARD_LENGTH; i++) {
+            for (int j = 0; j < BOARD_LENGTH; j++) {
+                final SquareImageWrapper curImageWrapper = squareImageWrappers[i][j];
+                curImageWrapper.getImageView().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (selectedSquare == null) {
+                            curImageWrapper.highlight();
+                            selectedSquare = curImageWrapper;
+                        } else {
+                            movePiece(selectedSquare.getIndexInString(), curImageWrapper.getIndexInString());
+                            selectedSquare.unhighlight();
+                            selectedSquare = null;
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    public void clickSpace(SquareImageWrapper squareImageWrapper) {
+        if (selectedSquare == null) {
+            squareImageWrapper.highlight();
+            selectedSquare = squareImageWrapper;
+        } else {
+            movePiece(selectedSquare.getIndexInString(), squareImageWrapper.getIndexInString());
+            selectedSquare.unhighlight();
+            selectedSquare = null;
+        }
+    }
+
+    //returns true if move was successful
+    public boolean makeMove(int  startIndex, int endIndex) {
+        movePiece(startIndex, endIndex);
+        if (myTurn)
+        return true;
+        ////////////////////////////////////
+        if (!myTurn) {
+            return true;
+        }
+
+        char pieceToMove = boardData.charAt(startIndex);
+        switch(pieceToMove) {
+            case WHITE_PAWN:
+                break;
+            case BLACK_PAWN:
+                break;
+            case WHITE_BISHOP:
+            case BLACK_BISHOP:
+                break;
+            case WHITE_KNIGHT:
+            case BLACK_KNIGHT:
+                break;
+            case WHITE_ROOK:
+            case BLACK_ROOK:
+                break;
+            case WHITE_KING:
+            case BLACK_KING:
+                break;
+            case WHITE_QUEEN:
+            case BLACK_QUEEN:
+
+        }
+
+        return true;
+    }
+
+    private void movePiece(int startIndex, int endIndex) {
+        char pieceToMove = boardData.charAt(startIndex);
+
+        StringBuilder boardBuilder = new StringBuilder(boardData);
+        boardBuilder.setCharAt(startIndex, EMPTY_SQUARE);
+        boardBuilder.setCharAt(endIndex, pieceToMove);
+        boardData = boardBuilder.toString();
+
+        updateDisplayer();
+        pushBoardToFirebase();
     }
 }
