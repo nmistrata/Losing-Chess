@@ -34,7 +34,7 @@ public class ChessGameController {
     public static final String BOARD_DATA_KEY = "booardData";
 
     //Board squares a found using charAt((BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX)
-    private String boardData;
+    private ChessBoard board;
 
     private String lobbyName;
     private int id = 0;
@@ -54,16 +54,15 @@ public class ChessGameController {
         this.id = id;
         playingWhite = true;
         this.displayer = displayer;
+        board = new ChessBoard();
         squareImageWrappers = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
-        setupEmptyBoard();
-
         gameRef = database.getReference(""+ id);
+        pushBoardToFirebase();
         gameRef.child(LOBBY_NAME_KEY).setValue(lobbyName);
         gameRef.child(WHITE_TO_MOVE_KEY).setValue(true);
         gameRef.child(GAME_STARTED_KEY).setValue(false);
-        setupStartingPos();
         setupDatabaseListeners();
     }
 
@@ -72,70 +71,28 @@ public class ChessGameController {
         this.id = id;
         playingWhite = false;
         this.displayer = displayer;
+        board = new ChessBoard();
         squareImageWrappers = displayer.getBoardDisplay();
         setUpSquareClickListeners();
-
-        setupEmptyBoard();
 
         gameRef = database.getReference("" + id);
         gameRef.child(GAME_STARTED_KEY).setValue(true);
         setupDatabaseListeners();
     }
 
-    private void setupEmptyBoard() {
-        boardData = "";
-        for (int i = 0; i < BOARD_LENGTH; i++) {
-            for (int j = 0; j < BOARD_LENGTH; j++) {
-                boardData += EMPTY_SQUARE;
-            }
-        }
-    }
-
     private void updateDisplayer() {
-        displayer.renderBoard(boardData);
+        displayer.renderBoard(board);
     }
 
     private void pushBoardToFirebase() {
-        gameRef.child(BOARD_DATA_KEY).setValue(boardData);
-    }
-
-    private void setupStartingPos(){
-        StringBuilder boardBuilder = new StringBuilder(boardData);
-
-        //sets up pawns  Board squares a found using (BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX
-        for (int i = 0; i < BOARD_LENGTH; i++) {
-            boardBuilder.setCharAt((BOARD_LENGTH * 1) + i, BLACK_PAWN);
-            boardBuilder.setCharAt((BOARD_LENGTH * 6) + i, WHITE_PAWN);
-        }
-
-        //sets up back ranks
-        boardBuilder.setCharAt((BOARD_LENGTH * 0) + 0, BLACK_ROOK);
-        boardBuilder.setCharAt((BOARD_LENGTH * 0) + 1, BLACK_KNIGHT);
-        boardBuilder.setCharAt((BOARD_LENGTH * 0) + 2, BLACK_BISHOP);
-        boardBuilder.setCharAt((BOARD_LENGTH * 0) + 3, BLACK_QUEEN);
-        boardBuilder.setCharAt((BOARD_LENGTH * 0) + 4, BLACK_KING);
-        boardBuilder.setCharAt((BOARD_LENGTH * 0) + 5, BLACK_BISHOP);
-        boardBuilder.setCharAt((BOARD_LENGTH * 0) + 6, BLACK_KNIGHT);
-        boardBuilder.setCharAt((BOARD_LENGTH * 0) + 7, BLACK_ROOK);
-
-        boardBuilder.setCharAt((BOARD_LENGTH * 7) + 0, WHITE_ROOK);
-        boardBuilder.setCharAt((BOARD_LENGTH * 7) + 1, WHITE_KNIGHT);
-        boardBuilder.setCharAt((BOARD_LENGTH * 7) + 2, WHITE_BISHOP);
-        boardBuilder.setCharAt((BOARD_LENGTH * 7) + 3, WHITE_QUEEN);
-        boardBuilder.setCharAt((BOARD_LENGTH * 7) + 4, WHITE_KING);
-        boardBuilder.setCharAt((BOARD_LENGTH * 7) + 5, WHITE_BISHOP);
-        boardBuilder.setCharAt((BOARD_LENGTH * 7) + 6, WHITE_KNIGHT);
-        boardBuilder.setCharAt((BOARD_LENGTH * 7) + 7, WHITE_ROOK);
-
-        boardData = boardBuilder.toString();
-        pushBoardToFirebase();
+        gameRef.child(BOARD_DATA_KEY).setValue(board.getBoardAsString());
     }
 
     private void setupDatabaseListeners() {
         gameRef.child(BOARD_DATA_KEY).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                boardData = dataSnapshot.getValue(String.class);
+                board.setBoardAsString(dataSnapshot.getValue(String.class));
                 updateDisplayer();
             }
 
@@ -163,7 +120,8 @@ public class ChessGameController {
                     @Override
                     public void onClick(View v) {
                         if ((curSelectedSquare == null &&
-                            boardData.charAt(curImageWrapper.getIndexInString()) == EMPTY_SQUARE) ||
+                            (board.getBoard()[curImageWrapper.getRowIndex()][curImageWrapper.getColumnIndex()])
+                                    == EMPTY_SQUARE) ||
                             !myTurn) {
                             return;
                         }
@@ -183,61 +141,17 @@ public class ChessGameController {
         }
     }
 
-    public void clickSpace(SquareImageWrapper squareImageWrapper) {
-        if (curSelectedSquare == null) {
-            squareImageWrapper.highlight();
-            curSelectedSquare = squareImageWrapper;
-        } else {
-            movePiece(curSelectedSquare.getIndexInString(), squareImageWrapper.getIndexInString());
-            curSelectedSquare.unhighlight();
-            curSelectedSquare = null;
-        }
-    }
-
     //returns true if move was successful
     public boolean makeMove(int  startIndex, int endIndex) {
-        movePiece(startIndex, endIndex);
-
-//        char pieceToMove = boardData.charAt(startIndex);
-//        switch(pieceToMove) {
-//            case WHITE_PAWN:
-//                break;
-//            case BLACK_PAWN:
-//                break;
-//            case WHITE_BISHOP:
-//            case BLACK_BISHOP:
-//                break;
-//            case WHITE_KNIGHT:
-//            case BLACK_KNIGHT:
-//                break;
-//            case WHITE_ROOK:
-//            case BLACK_ROOK:
-//                break;
-//            case WHITE_KING:
-//            case BLACK_KING:
-//                break;
-//            case WHITE_QUEEN:
-//            case BLACK_QUEEN:
-//
-//        }
-
+        board.movePiece(startIndex, endIndex);
 
         //essentially makes it not my turn locally and on the database.
-        myTurn = false;
-        gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
+//        myTurn = false;
+//        gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
 
+        updateDisplayer();
         return true;
     }
 
-    private void movePiece(int startIndex, int endIndex) {
-        char pieceToMove = boardData.charAt(startIndex);
 
-        StringBuilder boardBuilder = new StringBuilder(boardData);
-        boardBuilder.setCharAt(startIndex, EMPTY_SQUARE);
-        boardBuilder.setCharAt(endIndex, pieceToMove);
-        boardData = boardBuilder.toString();
-
-        updateDisplayer();
-        pushBoardToFirebase();
-    }
 }

@@ -2,16 +2,11 @@ package edu.illinois.finalproject;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.view.View;
 import android.widget.ImageView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class SquareImageWrapper {
-    private int columIndex;
+    private int columnIndex;
     private int rowIndex;
     private int indexInString;
     private int baseColor;
@@ -19,16 +14,16 @@ public class SquareImageWrapper {
 
     private ImageView imageView;
 
-    public SquareImageWrapper(ImageView imageView, int rowIndex, int columIndex) {
-        this.columIndex = columIndex;
+    public SquareImageWrapper(ImageView imageView, int rowIndex, int columnIndex) {
+        this.columnIndex = columnIndex;
         this.rowIndex = rowIndex;
-        this.indexInString = (ChessGameController.BOARD_LENGTH * rowIndex) +columIndex;
+        this.indexInString = (ChessGameController.BOARD_LENGTH * rowIndex) + columnIndex;
         this.baseColor = ((ColorDrawable) imageView.getBackground()).getColor();
-        this.imageView = imageView;;
+        this.imageView = imageView;
     }
 
-    public int getColumIndex() {
-        return columIndex;
+    public int getColumnIndex() {
+        return columnIndex;
     }
 
     public int getRowIndex() {

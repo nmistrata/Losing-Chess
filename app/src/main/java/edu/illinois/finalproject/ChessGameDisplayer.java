@@ -26,12 +26,12 @@ public class ChessGameDisplayer {
     public static final char BLACK_QUEEN = ChessGameController.BLACK_QUEEN;
     public static final char BLACK_KING = ChessGameController.BLACK_KING;
 
-    //Board squares a found using charAt((BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX)
-    private String curDisplayedGameState;
+    private char[][] curDisplayedGameState;
     SquareImageWrapper[][] boardDisplay;
 
     public ChessGameDisplayer(GridLayout gridLayout) {
         boardDisplay = new SquareImageWrapper[BOARD_LENGTH][BOARD_LENGTH];
+        curDisplayedGameState = new char[BOARD_LENGTH][BOARD_LENGTH];
         for(int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
                 ImageView curSquare = new ImageView(gridLayout.getContext());
@@ -44,12 +44,7 @@ public class ChessGameDisplayer {
                 gridLayout.addView(curSquare);
 
                 boardDisplay[i][j] = new SquareImageWrapper(curSquare, i, j);
-            }
-        }
-
-        for (int i = 0; i < BOARD_LENGTH; i++) {
-            for (int j = 0; j < BOARD_LENGTH; j++) {
-                curDisplayedGameState += EMPTY_SQUARE;
+                curDisplayedGameState[i][j] = EMPTY_SQUARE;
             }
         }
 
@@ -62,19 +57,18 @@ public class ChessGameDisplayer {
         curSquare.setLayoutParams(layoutParams);
     }
 
-    public void renderBoard(String newGameState) {
+    public void renderBoard(ChessBoard newBoard) {
+        char[][] newGameState = newBoard.getBoard();
         for (int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
-                int boardIndex = (BOARD_LENGTH * i) + j;
-                if (curDisplayedGameState.charAt(boardIndex) != newGameState.charAt(boardIndex)) {
-
-                    setSquareImage(boardDisplay[i][j], newGameState.charAt(boardIndex));
+                if (curDisplayedGameState[i][j] != newGameState[i][j]) {
+                    setSquareImage(boardDisplay[i][j], newGameState[i][j]);
                 }
 
             }
         }
 
-        curDisplayedGameState = newGameState;
+        curDisplayedGameState = newGameState.clone();
     }
 
     private void setSquareImage(SquareImageWrapper square, int piece) {
