@@ -5,34 +5,32 @@ import android.graphics.drawable.ColorDrawable;
 import android.widget.ImageView;
 
 
-public class SquareImageWrapper {
+public class Square {
+    private static final int LIGHT_COLOR = Color.rgb(110, 80, 0);
+    private static final int DARK_COLOR = Color.rgb(200, 180, 120);
+    private static final int HIGHLIGHT_COLOR_FACTOR = Color.rgb(40, 40, 40);
+
     private int columnIndex;
     private int rowIndex;
-    private int indexInString;
     private int baseColor;
-    private SquareImageWrapper wrapper = this;
+
 
     private ImageView imageView;
 
-    public SquareImageWrapper(ImageView imageView, int rowIndex, int columnIndex) {
+    public Square(ImageView imageView, int rowIndex, int columnIndex) {
         this.columnIndex = columnIndex;
         this.rowIndex = rowIndex;
-        this.indexInString = (ChessGameController.BOARD_LENGTH * rowIndex) + columnIndex;
-        this.baseColor = ((ColorDrawable) imageView.getBackground()).getColor();
         this.imageView = imageView;
+        baseColor = ((rowIndex + columnIndex) % 2 == 0) ? DARK_COLOR : LIGHT_COLOR;
+        imageView.setBackgroundColor(baseColor);
     }
 
-    public int getColumnIndex() {
+    public int getColumn() {
         return columnIndex;
     }
 
-    public int getRowIndex() {
+    public int getRow() {
         return rowIndex;
-    }
-
-    //useful when using the string representation of a board as opposed to a 2d array
-    public int getIndexInString() {
-        return indexInString;
     }
 
     public ImageView getImageView() {
@@ -41,7 +39,7 @@ public class SquareImageWrapper {
 
     //used when selecting a square
     public void highlight() {
-        imageView.setBackgroundColor(baseColor + Color.rgb(30, 30, 30));
+        imageView.setBackgroundColor(baseColor + HIGHLIGHT_COLOR_FACTOR);
     }
 
     public void unhighlight() {

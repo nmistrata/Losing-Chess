@@ -31,21 +31,21 @@ public class ChessGameController {
     public static final String LOBBY_NAME_KEY = "lobbyName";
     public static final String WHITE_TO_MOVE_KEY = "whiteToMove";
     public static final String GAME_STARTED_KEY = "gameStarted";
-    public static final String BOARD_DATA_KEY = "booardData";
+    public static final String BOARD_DATA_KEY = "boardData";
 
     //Board squares a found using charAt((BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX)
     private ChessBoard board;
 
     private String lobbyName;
-    private int id = 0;
+    private int id;
     private ChessGameDisplayer displayer;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
     private DatabaseReference gameRef;
     private boolean myTurn;
     private boolean playingWhite;
-    private SquareImageWrapper curSelectedSquare = null;
+    private Square curSelectedSquare = null;
 
-    private SquareImageWrapper[][] squareImageWrappers;
+    private Square[][] squares;
 
 
     //used for creating games
@@ -55,7 +55,7 @@ public class ChessGameController {
         playingWhite = true;
         this.displayer = displayer;
         board = new ChessBoard();
-        squareImageWrappers = displayer.getBoardDisplay();
+        squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
         gameRef = database.getReference(""+ id);
@@ -72,7 +72,7 @@ public class ChessGameController {
         playingWhite = false;
         this.displayer = displayer;
         board = new ChessBoard();
-        squareImageWrappers = displayer.getBoardDisplay();
+        squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
         gameRef = database.getReference("" + id);
@@ -98,7 +98,8 @@ public class ChessGameController {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
-        });
+        })
+        ;
 
         gameRef.child(WHITE_TO_MOVE_KEY).addValueEventListener(new ValueEventListener() {
             @Override
@@ -115,23 +116,30 @@ public class ChessGameController {
     private void setUpSquareClickListeners() {
         for (int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
-                final SquareImageWrapper curImageWrapper = squareImageWrappers[i][j];
-                curImageWrapper.getImageView().setOnClickListener(new View.OnClickListener() {
+                final Square targetSquare = squares[i][j];
+                targetSquare.getImageView().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+
                         if ((curSelectedSquare == null &&
-                            (board.getBoard()[curImageWrapper.getRowIndex()][curImageWrapper.getColumnIndex()])
+                            (board.getBoardAs2dArray()[targetSquare.getRow()][targetSquare.getColumn()])
                                     == EMPTY_SQUARE) ||
                             !myTurn) {
                             return;
                         }
 
                         if (curSelectedSquare == null) {
-                                curImageWrapper.highlight();
-                                curSelectedSquare = curImageWrapper;
+                            if(board.isWhitePiece(targetSquare.getRow(), targetSquare.getColumn())
+                                    == playingWhite) {
+                                targetSquare.highlight();
+                                curSelectedSquare = targetSquare;
+                            }
                         } else {
-                            makeMove(curSelectedSquare.getIndexInString(),
-                                         curImageWrapper.getIndexInString());
+                            //if the move succeeds, update displayer and end my turn.
+                            if (board.makeMove(curSelectedSquare.getRow(), curSelectedSquare.getColumn(),
+                                         targetSquare.getRow(), targetSquare.getColumn())) {
+                                endTurn();
+                            }
                             curSelectedSquare.unhighlight();
                             curSelectedSquare = null;
                         }
@@ -141,17 +149,10 @@ public class ChessGameController {
         }
     }
 
-    //returns true if move was successful
-    public boolean makeMove(int  startIndex, int endIndex) {
-        board.movePiece(startIndex, endIndex);
-
-        //essentially makes it not my turn locally and on the database.
-//        myTurn = false;
-//        gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
-
+    private void endTurn(){
+        pushBoardToFirebase();
         updateDisplayer();
-        return true;
+        gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
     }
-
 
 }

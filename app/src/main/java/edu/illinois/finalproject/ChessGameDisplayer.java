@@ -27,23 +27,18 @@ public class ChessGameDisplayer {
     public static final char BLACK_KING = ChessGameController.BLACK_KING;
 
     private char[][] curDisplayedGameState;
-    SquareImageWrapper[][] boardDisplay;
+    Square[][] boardDisplay;
 
     public ChessGameDisplayer(GridLayout gridLayout) {
-        boardDisplay = new SquareImageWrapper[BOARD_LENGTH][BOARD_LENGTH];
+        boardDisplay = new Square[BOARD_LENGTH][BOARD_LENGTH];
         curDisplayedGameState = new char[BOARD_LENGTH][BOARD_LENGTH];
         for(int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
                 ImageView curSquare = new ImageView(gridLayout.getContext());
                 setUpSquare(curSquare);
-                if((i + j) % 2 == 0) {
-                    curSquare.setBackgroundColor(Color.rgb(200, 180, 120));
-                } else {
-                    curSquare.setBackgroundColor(Color.rgb(110, 80, 0));
-                }
                 gridLayout.addView(curSquare);
 
-                boardDisplay[i][j] = new SquareImageWrapper(curSquare, i, j);
+                boardDisplay[i][j] = new Square(curSquare, i, j);
                 curDisplayedGameState[i][j] = EMPTY_SQUARE;
             }
         }
@@ -58,7 +53,7 @@ public class ChessGameDisplayer {
     }
 
     public void renderBoard(ChessBoard newBoard) {
-        char[][] newGameState = newBoard.getBoard();
+        char[][] newGameState = newBoard.getBoardAs2dArray();
         for (int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
                 if (curDisplayedGameState[i][j] != newGameState[i][j]) {
@@ -71,7 +66,7 @@ public class ChessGameDisplayer {
         curDisplayedGameState = newGameState.clone();
     }
 
-    private void setSquareImage(SquareImageWrapper square, int piece) {
+    private void setSquareImage(Square square, int piece) {
         switch (piece) {
             case EMPTY_SQUARE:
                 square.setImage(android.R.color.transparent);
@@ -117,7 +112,7 @@ public class ChessGameDisplayer {
         }
     }
 
-    public SquareImageWrapper[][] getBoardDisplay() {
+    public Square[][] getBoardDisplay() {
         return boardDisplay;
     }
 }
