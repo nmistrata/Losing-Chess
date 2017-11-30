@@ -23,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ChessGameDisplayer displayer = new ChessGameDisplayer(gridLayout);
-                ChessGameController controller = new ChessGameController(1, displayer);
+                ChessGameController controller = new ChessGameController("0", displayer);
             }
         });
 
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ChessGameDisplayer displayer = new ChessGameDisplayer(gridLayout);
-                ChessGameController controller = new ChessGameController(1, displayer, "my game");
+                ChessGameController controller = new ChessGameController(displayer, "my game");
             }
         });
     }

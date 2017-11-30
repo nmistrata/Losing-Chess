@@ -1,6 +1,8 @@
 package edu.illinois.finalproject;
 
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +51,10 @@ public class ChessBoard {
     //the innermost lists each represent a movement ray, the integers stored refer to spaces on the board
     //rays start at the moving piece and go in one direction till they go out of bounds
     public List<List<List<Integer>>> allMovementRays = new ArrayList<>();
+
+    //used to keep  track of available attacks to minimize calls to isAttackAvailable()
+    private boolean whiteAttackAvailable = false;
+    private boolean blackAttackAvailable = false;
 
     private static final char[] startingPosition =
             {OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS, OUT_OF_BOUNDS,
@@ -110,26 +116,40 @@ public class ChessBoard {
             return false;
         }
 
-        if(board[BOARD_MAP[startRow][startColumn]] == EMPTY_SQUARE) {
+        int startSquare = BOARD_MAP[startRow][startColumn];
+        int endSquare = BOARD_MAP[endRow][endColumn];
+
+        if(board[startSquare] == EMPTY_SQUARE) {
             return false;
+        }
+
+        //Will return false if there is an attack to be made and the attempted move is not an attack
+        if(pieceColor(board[startSquare]) == 1) {
+            if (whiteAttackAvailable && (board[endSquare] == EMPTY_SQUARE)) {
+                return false;
+            }
+        } else {
+            if (blackAttackAvailable && board[endSquare] == EMPTY_SQUARE) {
+                return false;
+            }
         }
 
         List<List<Integer>> movementRays = allMovementRays.get(BOARD_MAP[startRow][startColumn]);
 
         for (List<Integer> movementRay : movementRays) {
-            for (Integer square : movementRay) {
+            for (Integer curSquare : movementRay) {
                 boolean targetIsSameColor =
-                        pieceColor(square) == pieceColor(BOARD_MAP[startRow][startColumn]);
-                boolean moveIsValid = (board[square] != OUT_OF_BOUNDS) && !targetIsSameColor;
+                        pieceColor(board[curSquare]) == pieceColor(board[startSquare]);
+                boolean moveIsValid = (board[curSquare] != OUT_OF_BOUNDS) && !targetIsSameColor;
 
                 //if the move is the target move and is valid, do it and exit the method.
-                if (square == BOARD_MAP[endRow][endColumn] && moveIsValid) {
-                    movePiece(startRow, startColumn, endRow, endColumn);
+                if (curSquare == endSquare && moveIsValid) {
+                    movePiece(startSquare, endSquare);
                     return true;
                 }
 
-                //if the square being checked is not empty, don't keep searching along the ray
-                if (board[square] != EMPTY_SQUARE) {
+                //if the curSquare being checked is not empty, don't keep searching along the ray
+                if (board[curSquare] != EMPTY_SQUARE) {
                     break;
                 }
             }
@@ -137,33 +157,63 @@ public class ChessBoard {
         return false;
     }
 
-    public void movePiece(int startStringIndex, int endStringIndex) {
-        movePiece(startStringIndex / BOARD_LENGTH, startStringIndex % BOARD_LENGTH,
-                endStringIndex / BOARD_LENGTH, endStringIndex % BOARD_LENGTH);
+    private void movePiece(int startSquare, int endSquare) {
+        board[endSquare] = board[startSquare];
+        reMakeMovementRays(endSquare);
+
+        board[startSquare] = EMPTY_SQUARE;
+        reMakeMovementRays(startSquare);
+
+        updateAttackAvailableTrackers();
     }
 
-    private void movePiece(int startRow, int startColumn, int endRow, int endColumn) {
-        board[BOARD_MAP[endRow][endColumn]] = board[BOARD_MAP[startRow][startColumn]];
-        reMakeMovementRays(BOARD_MAP[endRow][endColumn]);
+    private void updateAttackAvailableTrackers() {
+        whiteAttackAvailable = isAttackAvailable(true);
+        blackAttackAvailable = isAttackAvailable(false);
+    }
 
-        board[BOARD_MAP[startRow][startColumn]] = EMPTY_SQUARE;
-        reMakeMovementRays(BOARD_MAP[startRow][startColumn]);
+    //CheckForWhiteAttack is true --> check for white attacks, else --> check for black attacks
+    private boolean isAttackAvailable(boolean checkForWhiteAttack) {
+        int colorToCheck;
+        if (checkForWhiteAttack) {
+            colorToCheck = 1;
+        } else {
+            colorToCheck = -1;
+        }
+
+        for (int square = 0; square < board.length; square++) {
+            //only go through a squares movement rays if it contains a piece of the correct color.
+            if (pieceColor(board[square]) == colorToCheck) {
+                for (List<Integer> movementRay : allMovementRays.get(square)) {
+                    for (Integer squareOnRay : movementRay) {
+
+                        //if a piece of the other color is found, than an attack is possible
+                        if (pieceColor(board[squareOnRay]) == -colorToCheck) {
+                            return true;
+                        }
+
+                        //only continue checking ray if the currently checked square is empty
+                        if (board[squareOnRay] != EMPTY_SQUARE) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        //no attack was found
+        return false;
     }
 
     //-1 is black, 1 is white, 0 is empty.
     public int pieceColor(int row, int column) {
-        return pieceColor(BOARD_MAP[row][column]);
+        return pieceColor(board[BOARD_MAP[row][column]]);
     }
-    public int pieceColor(int index) {
-        Character piece = board[index];
-        if (piece == EMPTY_SQUARE) {
+    private int pieceColor(char piece) {
+        if (piece == EMPTY_SQUARE || piece == OUT_OF_BOUNDS) {
             return 0;
         }
         return Character.isLowerCase(piece) ? 1 : -1;
-    }
-
-    public boolean isWhitePiece(int row, int column) {
-        return pieceColor(row, column) == 1;
     }
 
 
@@ -185,44 +235,45 @@ public class ChessBoard {
         }
     }
 
-    private void reMakeMovementRays(int startSquare) {
+    private void reMakeMovementRays(int square) {
         List<List<Integer>> movementRays;
-        switch (board[startSquare]) {
+        switch (board[square]) {
             case OUT_OF_BOUNDS:
             case EMPTY_SQUARE:
                 movementRays = new ArrayList<>();
                 break;
             case WHITE_PAWN:
-                movementRays = createPawnMovementRays(startSquare, true);
+                movementRays = createPawnMovementRays(square, true);
                 break;
             case BLACK_PAWN:
-                movementRays = createPawnMovementRays(startSquare, false);
+                movementRays = createPawnMovementRays(square, false);
                 break;
             case WHITE_KNIGHT:
             case BLACK_KNIGHT:
-                movementRays = createKnightMovementRays(startSquare);
+                movementRays = createKnightMovementRays(square);
                 break;
             case WHITE_BISHOP:
             case BLACK_BISHOP:
-                movementRays = createBishopMovementRays(startSquare);
+                movementRays = createBishopMovementRays(square);
                 break;
             case WHITE_ROOK:
             case BLACK_ROOK:
-                movementRays = createRookMovementRays(startSquare);
+                movementRays = createRookMovementRays(square);
                 break;
             case WHITE_QUEEN:
             case BLACK_QUEEN:
-                movementRays = createQueenMovementRays(startSquare);
+                movementRays = createQueenMovementRays(square);
                 break;
             case WHITE_KING:
             case BLACK_KING:
-                movementRays = createKingMovementRays(startSquare);
+                movementRays = createKingMovementRays(square);
                 break;
             default:
                 movementRays = new ArrayList<>();
         }
 
-        allMovementRays.set(startSquare, movementRays);
+        allMovementRays.set(square, movementRays);
+
     }
 
     private List<List<Integer>> createRookMovementRays(int startSquare) {
