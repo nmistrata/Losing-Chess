@@ -33,6 +33,8 @@ public class ChessGameController {
     public static final String WHITE_TO_MOVE_KEY = "whiteToMove";
     public static final String GAME_STARTED_KEY = "gameStarted";
     public static final String BOARD_DATA_KEY = "boardData";
+    public static final String HOST_PLAYS_WHITE_KEY = "hostPlaysWhite";
+    public static final String ID_KEY = "id";
 
     //Board squares a found using charAt((BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX)
     private ChessBoard board;
@@ -44,15 +46,16 @@ public class ChessGameController {
     private DatabaseReference gameRef;
     private boolean myTurn = true;
     private boolean playingWhite;
+    private boolean isHost;
     private Square curSelectedSquare = null;
 
     private Square[][] squares;
 
 
     //used for creating games
-    public ChessGameController(ChessGameDisplayer displayer, String lobbyName) {
+    public ChessGameController(ChessGameDisplayer displayer, String lobbyName, boolean hostPlaysWhite) {
         this.lobbyName = lobbyName;
-        playingWhite = true;
+        isHost = true;
         this.displayer = displayer;
         board = new ChessBoard();
         squares = displayer.getBoardDisplay();
@@ -66,29 +69,26 @@ public class ChessGameController {
         lobbyRef.child(LOBBY_NAME_KEY).setValue(lobbyName);
         gameRef.child(WHITE_TO_MOVE_KEY).setValue(true);
         gameRef.child(GAME_STARTED_KEY).setValue(false);
+        gameRef.child(HOST_PLAYS_WHITE_KEY).setValue(hostPlaysWhite);
         setupDatabaseListeners();
     }
 
     //Used for joining games
     public ChessGameController(String id, ChessGameDisplayer displayer) {
         this.id = id;
-        playingWhite = false;
+        isHost = false;
         this.displayer = displayer;
         board = new ChessBoard();
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
-        gameRef = database.getReference(id);
         DatabaseReference lobbyRef = database.getReference().child(LOBBY_LIST_KEY).child(id);
-
         lobbyRef.setValue(null);
+
+        gameRef = database.getReference(id);
         gameRef.child(GAME_STARTED_KEY).setValue(true);
 
         setupDatabaseListeners();
-    }
-
-    private void updateDisplayer() {
-        displayer.renderBoard(board);
     }
 
     private void pushBoardToFirebase() {
@@ -102,23 +102,35 @@ public class ChessGameController {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 board.setBoardAsString(dataSnapshot.getValue(String.class));
-                updateDisplayer();
+                displayer.renderBoard(board);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
-        })
-        ;
+        });
 
         gameRef.child(WHITE_TO_MOVE_KEY).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean whiteToMove = dataSnapshot.getValue(Boolean.class);
+                displayer.setWhiteToMove(whiteToMove);
                 //myTurn = (whiteToMove == playingWhite);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
+        });
+
+        gameRef.child(HOST_PLAYS_WHITE_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                playingWhite = (dataSnapshot.getValue(Boolean.class) ==  isHost);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
         });
     }
 
@@ -160,7 +172,7 @@ public class ChessGameController {
 
     private void endTurn(){
         pushBoardToFirebase();
-        updateDisplayer();
+        displayer.renderBoard(board);
         gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
     }
 

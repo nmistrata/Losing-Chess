@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/menuBackground">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="32dp"
+        android:background="@color/menuBackground"
+        android:padding="16dp"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createGameTitleTextView"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp">
+
+        <ImageView
+            android:id="@+id/createGameBlackPawnImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/createGameWhitePawnImage"
+            app:layout_constraintLeft_toRightOf="@+id/createGameWhitePawnImage"
+            app:srcCompat="@drawable/black_pawn" />
+
+        <RadioButton
+            android:id="@+id/whitePawnRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/darkMenuBackground"
+            app:buttonTint="@color/darkMenuBackground"
+            app:layout_constraintRight_toRightOf="@+id/createGameWhitePawnImage"
+            app:layout_constraintTop_toBottomOf="@+id/createGameWhitePawnImage"
+            android:layout_marginLeft="3dp"
+            app:layout_constraintLeft_toLeftOf="@+id/createGameWhitePawnImage"
+            android:layout_marginStart="3dp" />
+
+        <RadioButton
+            android:id="@+id/blackPawnRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:buttonTint="@color/darkMenuBackground"
+            app:layout_constraintLeft_toLeftOf="@+id/createGameBlackPawnImage"
+            app:layout_constraintRight_toRightOf="@+id/createGameBlackPawnImage"
+            app:layout_constraintTop_toBottomOf="@+id/createGameBlackPawnImage"
+            android:layout_marginLeft="3dp"
+            android:layout_marginStart="3dp" />
+
+        <TextView
+            android:id="@+id/myColorTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginLeft="32dp"
+            android:text="My Color: "
+            android:textColor="@color/darkMenuBackground"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="@+id/whitePawnRadioButton"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/whitePawnRadioButton"
+            app:layout_constraintVertical_bias="1.0"
+            app:layout_constraintRight_toLeftOf="@+id/whitePawnRadioButton"
+            android:layout_marginRight="24dp"/>
+
+        <ImageView
+            android:id="@+id/createGameWhitePawnImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="48dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintHorizontal_bias="0.79"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/white_pawn"/>
+
+        <TextView
+            android:id="@+id/lobbyNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="24dp"
+            android:text="Lobby Name"
+            android:textColor="@color/darkMenuBackground"
+            android:textSize="24sp"
+            app:layout_constraintHorizontal_bias="0.502"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/myColorTextView" />
+
+        <EditText
+            android:id="@+id/lobbyNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
+            android:layout_marginStart="32dp"
+            android:ems="10"
+            android:hint="Type Lobby Name Here"
+            android:inputType="textPersonName"
+            android:textColor="@color/darkMenuBackground"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="@+id/lobbyNameTextView"
+            app:layout_constraintRight_toRightOf="@+id/lobbyNameTextView"
+            app:layout_constraintTop_toBottomOf="@+id/lobbyNameTextView"
+            app:layout_constraintVertical_bias="0.0" />
+    </android.support.constraint.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/createGameTitleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Create a Game"
+        android:textColor="@color/darkMenuBackground"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/createButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:padding="24dp"
+        android:text="Create"
+        android:textColor="@color/menuBackground"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
+        app:layout_constraintVertical_bias="0.32" />
+</android.support.constraint.ConstraintLayout>

@@ -1,8 +1,13 @@
 package edu.illinois.finalproject;
 
-import android.graphics.Color;
+import android.support.constraint.ConstraintLayout;
+import android.util.DisplayMetrics;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 
 public class ChessGameDisplayer {
@@ -26,30 +31,63 @@ public class ChessGameDisplayer {
     public static final char BLACK_QUEEN = ChessGameController.BLACK_QUEEN;
     public static final char BLACK_KING = ChessGameController.BLACK_KING;
 
+    public static final String WHITE_TO_MOVE = "White to move";
+    public static final String BLACK_TO_MOVE = "Black to move";
+
     private char[][] curDisplayedGameState;
     Square[][] boardDisplay;
+    GridLayout gridLayout;
+    TextView whoseTurnIsit;
+    TextView gameHasStarted;
 
-    public ChessGameDisplayer(GridLayout gridLayout) {
+    public ChessGameDisplayer(GridLayout gridLayout, TextView whoseTurnIsitTextView,
+                              TextView hasGameStartedTextView, boolean flipView) {
         boardDisplay = new Square[BOARD_LENGTH][BOARD_LENGTH];
         curDisplayedGameState = new char[BOARD_LENGTH][BOARD_LENGTH];
+
+        this.whoseTurnIsit = whoseTurnIsitTextView;
+        whoseTurnIsitTextView.setText(WHITE_TO_MOVE);
+
+        this.gameHasStarted = hasGameStartedTextView;
+        hasGameStartedTextView.setText("Waiting for a player to join");
+
+        this.gridLayout= gridLayout;
         for(int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
                 ImageView curSquare = new ImageView(gridLayout.getContext());
-                setUpSquare(curSquare);
+                setUpSquareImage(curSquare);
                 gridLayout.addView(curSquare);
 
-                boardDisplay[i][j] = new Square(curSquare, i, j);
+                //used to flip the board vertically for playing black
+                int row = flipView ? BOARD_LENGTH - 1 - i : i;
+
+                boardDisplay[row][j] = new Square(curSquare, row, j);
                 curDisplayedGameState[i][j] = EMPTY_SQUARE;
             }
         }
 
     }
 
-    private void setUpSquare(ImageView curSquare) {
-        GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
-        layoutParams.height = DEFAULT_SQUARE_LENGTH;
-        layoutParams.width = DEFAULT_SQUARE_LENGTH;
-        curSquare.setLayoutParams(layoutParams);
+    private void setUpSquareImage(ImageView curSquare) {
+        GridLayout.LayoutParams squareParams = new GridLayout.LayoutParams();
+
+        DisplayMetrics metrics = new DisplayMetrics();
+        gridLayout.getContext().getSystemService(WindowManager.class).getDefaultDisplay().getMetrics(metrics);
+
+        FrameLayout.LayoutParams gridLayoutParams = (FrameLayout.LayoutParams) gridLayout.getLayoutParams();
+        ConstraintLayout.LayoutParams frameLayoutParams =
+                (ConstraintLayout.LayoutParams)((ViewGroup)gridLayout.getParent()).getLayoutParams();
+
+        int totalMargins = gridLayoutParams.leftMargin + gridLayoutParams.rightMargin +
+                frameLayoutParams.leftMargin + frameLayoutParams.rightMargin;
+
+        int boardWidth =
+                metrics.widthPixels - totalMargins;
+        int squareSideLength = boardWidth / 8;
+
+        squareParams.height = squareSideLength;
+        squareParams.width = squareSideLength;
+        curSquare.setLayoutParams(squareParams);
     }
 
     public void renderBoard(ChessBoard newBoard) {
@@ -64,6 +102,18 @@ public class ChessGameDisplayer {
         }
 
         curDisplayedGameState = newGameState.clone();
+    }
+
+    public void setWhiteToMove(boolean whiteToMove) {
+        if (whiteToMove) {
+            whoseTurnIsit.setText(WHITE_TO_MOVE);
+        } else {
+            whoseTurnIsit.setText(BLACK_TO_MOVE);
+        }
+    }
+
+    public void startGame() {
+        gameHasStarted.setText("Game has started");
     }
 
     private void setSquareImage(Square square, int piece) {
