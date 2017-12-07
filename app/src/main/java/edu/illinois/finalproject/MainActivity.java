@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.GridLayout;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -43,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.main_menu);
 
         Button createGameButton = (Button) findViewById(R.id.createGameButton);
+        Button joinGameButton = (Button) findViewById(R.id.joinGameButton);
 
         createGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,6 +50,15 @@ public class MainActivity extends AppCompatActivity {
                 final Context context = v.getContext();
                 Intent createGameIntent = new Intent(context, CreateGameActivity.class);
                 context.startActivity(createGameIntent);
+            }
+        });
+
+        joinGameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Context context = v.getContext();
+                Intent lobbyListIntent = new Intent(context, LobbyListActivity.class);
+                context.startActivity(lobbyListIntent);
             }
         });
     }

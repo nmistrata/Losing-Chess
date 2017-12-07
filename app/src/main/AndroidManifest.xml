@@ -18,6 +18,7 @@
         </activity>
         <activity android:name=".CreateGameActivity"/>
         <activity android:name=".PlayGameActivity"/>
+        <activity android:name=".LobbyListActivity"/>
     </application>
 
 </manifest>

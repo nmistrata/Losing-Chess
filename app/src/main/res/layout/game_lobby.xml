@@ -8,13 +8,50 @@
     android:layout_margin="4dp"
     android:background="@color/menuBackground">
 
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/joinGameButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_button"
+        android:padding="8dp"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/joinAsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:text="JOIN AS"
+            android:textColor="@color/menuBackground"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/pawnOnJoinButtonImageView"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:paddingTop="0dp"
+            app:srcCompat="@drawable/white_pawn"
+            app:layout_constraintTop_toBottomOf="@+id/joinAsTextView"
+            app:layout_constraintLeft_toLeftOf="@+id/joinAsTextView"
+            app:layout_constraintRight_toRightOf="@+id/joinAsTextView" />
+
+    </android.support.constraint.ConstraintLayout>
+
     <TextView
         android:id="@+id/singleLobbyNameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="24dp"
-        android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:text="Lobby Name"
         android:textAlignment="viewStart"
@@ -22,25 +59,6 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/joinLobbyButton"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.489"
-        app:layout_constraintHorizontal_bias="0.0" />
-
-    <Button
-        android:id="@+id/joinLobbyButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/rounded_button"
-        android:padding="16dp"
-        android:text="Join as\nWhite"
-        android:textColor="@color/menuBackground"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
 </android.support.constraint.ConstraintLayout>

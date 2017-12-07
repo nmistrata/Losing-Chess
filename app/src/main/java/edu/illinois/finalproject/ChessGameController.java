@@ -61,12 +61,16 @@ public class ChessGameController {
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
-        id = "0"; //id = database.getReference().push().getKey();
+        //id = "0";
+        id = database.getReference().push().getKey();
         gameRef = database.getReference().child(id);
-        DatabaseReference lobbyRef = database.getReference().child(LOBBY_LIST_KEY).child(id);
+        DatabaseReference lobbyRef = database.getReference(LOBBY_LIST_KEY);
+
+        GameLobby lobby = new GameLobby(lobbyName, hostPlaysWhite, id);
+        lobbyRef.child(id).setValue(lobby);
 
         pushBoardToFirebase();
-        lobbyRef.child(LOBBY_NAME_KEY).setValue(lobbyName);
+
         gameRef.child(WHITE_TO_MOVE_KEY).setValue(true);
         gameRef.child(GAME_STARTED_KEY).setValue(false);
         gameRef.child(HOST_PLAYS_WHITE_KEY).setValue(hostPlaysWhite);
@@ -124,7 +128,7 @@ public class ChessGameController {
         gameRef.child(HOST_PLAYS_WHITE_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                playingWhite = (dataSnapshot.getValue(Boolean.class) ==  isHost);
+                playingWhite = (dataSnapshot.getValue(Boolean.class) == isHost);
             }
 
             @Override
