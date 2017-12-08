@@ -103,6 +103,7 @@ public class ChessBoard {
                 if (curPiece != newPiece) {
                     board[BOARD_MAP[i][j]] = newPiece;
                     reMakeMovementRays(BOARD_MAP[i][j]);
+                    updateAttackAvailableTrackers();
                 }
             }
         }
@@ -134,13 +135,33 @@ public class ChessBoard {
             }
         }
 
-        List<List<Integer>> movementRays = allMovementRays.get(BOARD_MAP[startRow][startColumn]);
+        if (board[startSquare] == BLACK_PAWN || board[startSquare] == WHITE_PAWN) {
+            return makeMove(startSquare, endSquare, true);
+        } else {
+            return makeMove(startSquare, endSquare, false);
+        }
+    }
 
-        for (List<Integer> movementRay : movementRays) {
-            for (Integer curSquare : movementRay) {
-                boolean targetIsSameColor =
-                        pieceColor(board[curSquare]) == pieceColor(board[startSquare]);
-                boolean moveIsValid = (board[curSquare] != OUT_OF_BOUNDS) && !targetIsSameColor;
+    private boolean makeMove(int startSquare, int endSquare, boolean pieceIsPawn) {
+        List<List<Integer>> pieceMovementRays = allMovementRays.get(startSquare);
+        for (int i = 0; i < pieceMovementRays.size(); i++) {
+            //walks along a movement ray looking  for the target move or a blocking piece/out of bounds
+            for (Integer curSquare : pieceMovementRays.get(i)) {
+
+                boolean moveIsValid;
+                //special case: pawns do not attack as they move, first ray  will always be non-attack ray
+                if (pieceIsPawn) {
+                    //if (checking non attack ray) else (checking an attack ray)
+                    if (i == 0) {
+                        moveIsValid = board[curSquare] == EMPTY_SQUARE;
+                    } else {
+                        moveIsValid = (pieceColor(board[curSquare]) == -pieceColor(board[startSquare]));
+                    }
+                } else {
+                    boolean targetIsSameColor =
+                            pieceColor(board[curSquare]) == pieceColor(board[startSquare]);
+                    moveIsValid = (board[curSquare] != OUT_OF_BOUNDS) && !targetIsSameColor;
+                }
 
                 //if the move is the target move and is valid, do it and exit the method.
                 if (curSquare == endSquare && moveIsValid) {
@@ -157,6 +178,7 @@ public class ChessBoard {
         return false;
     }
 
+    //moves a piece to a new square and makes the starting square empty
     private void movePiece(int startSquare, int endSquare) {
         board[endSquare] = board[startSquare];
         reMakeMovementRays(endSquare);
@@ -182,10 +204,19 @@ public class ChessBoard {
         }
 
         for (int square = 0; square < board.length; square++) {
-            //only go through a squares movement rays if it contains a piece of the correct color.
+            //only go through a squares movement rays if it contains a piece ofthe color being checked.
             if (pieceColor(board[square]) == colorToCheck) {
-                for (List<Integer> movementRay : allMovementRays.get(square)) {
-                    for (Integer squareOnRay : movementRay) {
+
+                int startRay = 0;
+                //special case for pawns because  they do not attack and move the same way
+                if (board[square] == BLACK_PAWN || board[square] == WHITE_PAWN) {
+                    //skip over the forward movement ray to only check attacks
+                    startRay = 1;
+                }
+
+                List<List<Integer>> squareMovementRays = allMovementRays.get(square);
+                for (int i = startRay; i < squareMovementRays.size(); i++) {
+                    for (int squareOnRay : squareMovementRays.get(i)) {
 
                         //if a piece of the other color is found, than an attack is possible
                         if (pieceColor(board[squareOnRay]) == -colorToCheck) {
@@ -227,6 +258,7 @@ public class ChessBoard {
     private static int[] DIAGONALS = {UP_OFFSET + RIGHT_OFFSET, UP_OFFSET + LEFT_OFFSET,
             DOWN_OFFSET + RIGHT_OFFSET, DOWN_OFFSET + LEFT_OFFSET};
 
+    //used for the creation of the movement rays
     private void createAllMovementRays() {
         int numberOfSquares = ((2 * PADDING) + BOARD_LENGTH) * ((2 * PADDING) + BOARD_LENGTH);
         for (int i = 0; i < numberOfSquares; i++) {
@@ -235,6 +267,7 @@ public class ChessBoard {
         }
     }
 
+    //remakes the movement rays for 1 square, useful when the piecec changes on that square
     private void reMakeMovementRays(int square) {
         List<List<Integer>> movementRays;
         switch (board[square]) {
@@ -300,28 +333,34 @@ public class ChessBoard {
         return movementRays;
     }
 
+    //The list of pawn movement rays will always start with a ray representing a forward move
+    //follwed by 2 rays representing the 2 possible diagonalattacks
     private List<List<Integer>> createPawnMovementRays(int startSquare, boolean isWhite) {
         int movementDirection;
-        int startRow;
+        int homeRow;
+        ArrayList<List<Integer>> movementRays = new ArrayList<>();
 
         if (isWhite) {
             movementDirection = UP_OFFSET;
-            startRow = 6;
+            homeRow = 6;
         } else {
             movementDirection = DOWN_OFFSET;
-            startRow = 1;
+            homeRow = 1;
         }
 
-        int[] offsets;
-        //checks if the pawn hasn't moved yet
-        if (startSquare >= BOARD_MAP[startRow][0] &&
-                startSquare <= BOARD_MAP[startRow][BOARD_LENGTH - 1]) {
-            offsets = new int[]{movementDirection, 2 * movementDirection};
-        } else {
-            offsets = new int[]{movementDirection};
-        }
+        List<Integer> forwardMovenentRay = new ArrayList<>();
 
-        return createMovementRays(startSquare, offsets, false);
+        forwardMovenentRay.add(startSquare + movementDirection);
+        if (startSquare >= BOARD_MAP[homeRow][0] &&
+                startSquare <= BOARD_MAP[homeRow][BOARD_LENGTH - 1]) {
+            forwardMovenentRay.add(startSquare + 2* movementDirection);
+        }
+        movementRays.add(forwardMovenentRay);
+
+        int[] attackOffsets = {movementDirection + LEFT_OFFSET, movementDirection + RIGHT_OFFSET};
+        movementRays.addAll(createMovementRays(startSquare, attackOffsets, false));
+
+        return   movementRays;
     }
 
     private  List<List<Integer>> createKnightMovementRays(int startSquare) {
