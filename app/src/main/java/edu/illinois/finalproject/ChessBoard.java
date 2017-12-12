@@ -4,6 +4,7 @@ package edu.illinois.finalproject;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ChessBoard {
@@ -18,6 +19,8 @@ public class ChessBoard {
     public static final char WHITE_ROOK = 'r';
     public static final char WHITE_QUEEN = 'q';
     public static final char WHITE_KING = 'k';
+    public static  final  String WHITE_PIECES = "" + WHITE_PAWN + WHITE_KNIGHT + WHITE_BISHOP +
+            WHITE_ROOK + WHITE_QUEEN + WHITE_KING;
 
     public static final char BLACK_PAWN = 'P';
     public static final char BLACK_KNIGHT = 'N';
@@ -25,6 +28,8 @@ public class ChessBoard {
     public static final char BLACK_ROOK = 'R';
     public static final char BLACK_QUEEN = 'Q';
     public static final char BLACK_KING = 'K';
+    public static final String BLACK_PIECES = ""  + BLACK_PAWN + BLACK_KNIGHT + BLACK_BISHOP +
+            BLACK_ROOK + BLACK_QUEEN + BLACK_KING;
 
     //The amount of layers of out of bounds squares to make, useful when computing possible moves
     private static final int PADDING =  2;
@@ -47,10 +52,10 @@ public class ChessBoard {
                     {110, 111, 112, 113, 114, 115, 116, 117}};
 
     //outermost list indices refer to each square on the board
-    //At each index, a list holds the movement rays for the piece at that square in no particular order
+    //At each index, a list holds the movement rays for the piece at that square
     //the innermost lists each represent a movement ray, the integers stored refer to spaces on the board
-    //rays start at the moving piece and go in one direction till they go out of bounds
-    public List<List<List<Integer>>> allMovementRays = new ArrayList<>();
+    //rays start at a square adjacent to the moving piece and go in one direction
+    private List<List<List<Integer>>> allMovementRays = new ArrayList<>();
 
     //used to keep  track of available attacks to minimize calls to isAttackAvailable()
     private boolean whiteAttackAvailable = false;
@@ -75,6 +80,9 @@ public class ChessBoard {
         createAllMovementRays();
     }
 
+    /**
+     * @return board representated as a string, starting at top left, going across a row and then down to next row
+     */
     public String getBoardAsString() {
         StringBuilder boardBuilder = new StringBuilder();
         for (int i = 0; i < BOARD_LENGTH; i++) {
@@ -85,6 +93,9 @@ public class ChessBoard {
         return boardBuilder.toString();
     }
 
+    /**
+     * @return board represented as a 2d array, top left is [0][0], board[rowIndex][column index]
+     */
     public char[][] getBoardAs2dArray() {
         char[][] returnBoard = new char[BOARD_LENGTH][BOARD_LENGTH];
 
@@ -95,6 +106,11 @@ public class ChessBoard {
         return returnBoard;
     }
 
+    /**
+     * used to load a string representation of a board into this board object.
+     *
+     * @param boardString A string representation of a board to load
+     */
     public void setBoardAsString(String boardString) {
         for (int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
@@ -236,7 +252,13 @@ public class ChessBoard {
         return false;
     }
 
-    //-1 is black, 1 is white, 0 is empty.
+    /**
+     * used to determine the color  of a piecec ona square if there is a piece there
+     *
+     * @param row the row of the piecec to checck, top row is 0
+     * @param column the column of piecec to check, left column is 0
+     * @return -1 is piecec is black, 1 if piece is white, 0 is square is empty
+     */
     public int pieceColor(int row, int column) {
         return pieceColor(board[BOARD_MAP[row][column]]);
     }
@@ -247,6 +269,51 @@ public class ChessBoard {
         return Character.isLowerCase(piece) ? 1 : -1;
     }
 
+    public boolean whiteHasLessPieces() {
+        int whitePieces = 0;
+        int blackPieces = 0;
+        for (char piece : board) {
+            if (WHITE_PIECES.contains("" + piece)) {
+                whitePieces++;
+            } else if (BLACK_PIECES.contains("" + piece)) {
+                blackPieces++;
+            }
+        }
+        return (whitePieces < blackPieces);
+
+    }
+
+    public boolean isMoveAvailable(boolean checkForWhiteMove) {
+        int colorToCheck;
+        if (checkForWhiteMove) {
+            colorToCheck = 1;
+        } else {
+            colorToCheck = -1;
+        }
+
+        for (int square = 0; square < board.length; square++) {
+            //only go through a squares movement rays if it contains a piece of the color being checked.
+            if (pieceColor(board[square]) == colorToCheck) {
+                //if the piece is a pawn only check the first square of the first movement ray
+                //else check the first square  of each movement ray
+                if (board[square] == BLACK_PAWN || board[square] == WHITE_PAWN) {
+                    if (board[allMovementRays.get(square).get(0).get(0)] == EMPTY_SQUARE) {
+                        return true;
+                    }
+                } else {
+                    for (List<Integer> movementRay : allMovementRays.get(square)) {
+                        if (board[movementRay.get(0)] == EMPTY_SQUARE) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        //no non-attack was found, checck for attacks
+        Log.d("Board", "isMoveAvailable: no move, checking attacks");
+        return isAttackAvailable(checkForWhiteMove);
+    }
 
     //EVERYTHING BELOW IS FOR THE CREATION OF MOVEMENT RAYS
 
@@ -258,7 +325,7 @@ public class ChessBoard {
     private static int[] DIAGONALS = {UP_OFFSET + RIGHT_OFFSET, UP_OFFSET + LEFT_OFFSET,
             DOWN_OFFSET + RIGHT_OFFSET, DOWN_OFFSET + LEFT_OFFSET};
 
-    //used for the creation of the movement rays
+    //used for the instantiation of the movement rays
     private void createAllMovementRays() {
         int numberOfSquares = ((2 * PADDING) + BOARD_LENGTH) * ((2 * PADDING) + BOARD_LENGTH);
         for (int i = 0; i < numberOfSquares; i++) {
@@ -267,7 +334,7 @@ public class ChessBoard {
         }
     }
 
-    //remakes the movement rays for 1 square, useful when the piecec changes on that square
+    //remakes the movement rays for 1 square, useful when the piece changes on that square
     private void reMakeMovementRays(int square) {
         List<List<Integer>> movementRays;
         switch (board[square]) {
@@ -334,7 +401,7 @@ public class ChessBoard {
     }
 
     //The list of pawn movement rays will always start with a ray representing a forward move
-    //follwed by 2 rays representing the 2 possible diagonalattacks
+    //followed by 2 rays representing the 2 possible diagonal attacks
     private List<List<Integer>> createPawnMovementRays(int startSquare, boolean isWhite) {
         int movementDirection;
         int homeRow;
@@ -384,7 +451,8 @@ public class ChessBoard {
         return createMovementRays(startSquare, offsets, false);
     }
 
-
+    //creates a list of movement rays in the directions specified by directionOffsets
+    //if moveUntilOutOfBounds is false the movement rays will only contain a single square
     private List<List<Integer>> createMovementRays(int startSquare, int[] directionOffsets,
                                                    boolean moveUntilOutOfBounds) {
         ArrayList<List<Integer>> movementRays = new ArrayList<>();

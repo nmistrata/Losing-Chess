@@ -23,6 +23,8 @@ public class CreateGameActivity extends AppCompatActivity{
         final EditText lobbyNameEditText = (EditText) findViewById(R.id.lobbyNameEditText);
         final Button createButton = (Button) findViewById(R.id.createButton);
 
+        whitePawnRadioButton.setChecked(true);
+
         blackPawnRadioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

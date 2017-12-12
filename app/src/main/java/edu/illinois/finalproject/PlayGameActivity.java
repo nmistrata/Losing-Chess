@@ -38,7 +38,6 @@ public class PlayGameActivity extends AppCompatActivity{
         } else {
             displayer = new ChessGameDisplayer(gameGridLayout, whoseTurnIsIt,
                     hasGameStarted, hostPlaysWhite);
-            displayer.startGame();
 
             String id = intent.getStringExtra(ChessGameController.ID_KEY);
             Log.d("PlayGameActivity", "id:  " + id);

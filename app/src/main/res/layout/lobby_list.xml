@@ -9,15 +9,23 @@
         android:id="@+id/lobbyListTitleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/menuBackground"
         android:padding="16dp"
         android:text="Lobby List"
         android:textAlignment="center"
-        android:textColor="@color/menuBackground"
+        android:textColor="@color/darkMenuBackground"
         android:textSize="30sp"
         android:textStyle="bold" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:paddingTop="4dp"
+        android:background="@color/darkMenuBackground">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </ScrollView>
 </LinearLayout>

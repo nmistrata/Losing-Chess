@@ -1,5 +1,6 @@
 package edu.illinois.finalproject;
 
+import android.app.Activity;
 import android.support.constraint.ConstraintLayout;
 import android.util.DisplayMetrics;
 import android.view.ViewGroup;
@@ -72,7 +73,7 @@ public class ChessGameDisplayer {
         GridLayout.LayoutParams squareParams = new GridLayout.LayoutParams();
 
         DisplayMetrics metrics = new DisplayMetrics();
-        gridLayout.getContext().getSystemService(WindowManager.class).getDefaultDisplay().getMetrics(metrics);
+        ((Activity) gridLayout.getContext()).getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         FrameLayout.LayoutParams gridLayoutParams = (FrameLayout.LayoutParams) gridLayout.getLayoutParams();
         ConstraintLayout.LayoutParams frameLayoutParams =
@@ -114,6 +115,10 @@ public class ChessGameDisplayer {
 
     public void startGame() {
         gameHasStarted.setText("Game has started");
+    }
+    public void endGame(boolean whiteHasWon) {
+        gameHasStarted.setText("Game Over");
+        whoseTurnIsit.setText((whiteHasWon ? "White" : "Black") + " has won!");
     }
 
     private void setSquareImage(Square square, int piece) {

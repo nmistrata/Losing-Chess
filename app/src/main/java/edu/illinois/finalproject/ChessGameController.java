@@ -1,5 +1,6 @@
 package edu.illinois.finalproject;
 
+import android.util.Log;
 import android.view.View;
 
 import com.google.firebase.database.DataSnapshot;
@@ -39,7 +40,6 @@ public class ChessGameController {
     //Board squares a found using charAt((BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX)
     private ChessBoard board;
 
-    private String lobbyName;
     private String id;
     private ChessGameDisplayer displayer;
     private FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -54,14 +54,12 @@ public class ChessGameController {
 
     //used for creating games
     public ChessGameController(ChessGameDisplayer displayer, String lobbyName, boolean hostPlaysWhite) {
-        this.lobbyName = lobbyName;
         isHost = true;
         this.displayer = displayer;
         board = new ChessBoard();
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
-        //id = "0";
         id = database.getReference().push().getKey();
         gameRef = database.getReference().child(id);
         DatabaseReference lobbyRef = database.getReference(LOBBY_LIST_KEY);
@@ -107,18 +105,8 @@ public class ChessGameController {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 board.setBoardAsString(dataSnapshot.getValue(String.class));
                 displayer.renderBoard(board);
-            }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
-
-        gameRef.child(WHITE_TO_MOVE_KEY).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                boolean whiteToMove = dataSnapshot.getValue(Boolean.class);
-                displayer.setWhiteToMove(whiteToMove);
-                //myTurn = (whiteToMove == playingWhite);
+                checkForGameEnd();
             }
 
             @Override
@@ -135,6 +123,31 @@ public class ChessGameController {
             public void onCancelled(DatabaseError databaseError) {
 
             }
+        });
+
+        gameRef.child(WHITE_TO_MOVE_KEY).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean whiteToMove = dataSnapshot.getValue(Boolean.class);
+                displayer.setWhiteToMove(whiteToMove);
+                myTurn = (whiteToMove == playingWhite);
+                Log.d("Controller", "onDataChange: myTurn: " + myTurn);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
+        gameRef.child(GAME_STARTED_KEY).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue(Boolean.class)) {
+                    displayer.startGame();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
         });
     }
 
@@ -175,9 +188,20 @@ public class ChessGameController {
     }
 
     private void endTurn(){
+        gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
         pushBoardToFirebase();
         displayer.renderBoard(board);
-        gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
+    }
+
+    private void checkForGameEnd() {
+        boolean whiteToMove = (playingWhite == myTurn);
+        //if current player  has  no moves due to no pieces or stalemate
+        if (!board.isMoveAvailable(whiteToMove)) {
+            boolean whiteWon = board.whiteHasLessPieces();
+            myTurn = false;
+            displayer.endGame(whiteWon);
+        }
+
     }
 
 }
