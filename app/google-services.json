@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "345719451195",
+    "firebase_url": "https://final-project-nmistrata.firebaseio.com",
+    "project_id": "final-project-nmistrata",
+    "storage_bucket": "final-project-nmistrata.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:345719451195:android:d3c190f37d1163ae",
+        "android_client_info": {
+          "package_name": "edu.illinois.finalproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "345719451195-hiuovp04ichcic8vlve23ekeq17hv0oh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.illinois.finalproject",
+            "certificate_hash": "87e34876662c4c9074486564f2a34b9b1537b0f1"
+          }
+        },
+        {
+          "client_id": "345719451195-ifnkldirjsm69gmoaecllmi0gdlu3b7i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1XiY4Q0rea1TGylOGODeu-jvZFVZVE0M"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "345719451195-ifnkldirjsm69gmoaecllmi0gdlu3b7i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

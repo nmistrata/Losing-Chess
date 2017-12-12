@@ -197,6 +197,17 @@ public class ChessBoard {
     //moves a piece to a new square and makes the starting square empty
     private void movePiece(int startSquare, int endSquare) {
         board[endSquare] = board[startSquare];
+
+        //white pawn promotion
+        if (endSquare < BOARD_MAP[0][BOARD_LENGTH - 1] && endSquare > BOARD_MAP[0][0] &&
+                board[endSquare] == WHITE_PAWN) {
+            board[endSquare] = WHITE_QUEEN;
+        }
+        //black pawn promotion
+        if (endSquare < BOARD_MAP[6][BOARD_LENGTH - 1] && endSquare > BOARD_MAP[6][0] &&
+                board[endSquare] == BLACK_PAWN) {
+            board[endSquare] = BLACK_QUEEN;
+        }
         reMakeMovementRays(endSquare);
 
         board[startSquare] = EMPTY_SQUARE;

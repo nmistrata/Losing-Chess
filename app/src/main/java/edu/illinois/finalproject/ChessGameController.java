@@ -130,8 +130,7 @@ public class ChessGameController {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean whiteToMove = dataSnapshot.getValue(Boolean.class);
                 displayer.setWhiteToMove(whiteToMove);
-                myTurn = (whiteToMove == playingWhite);
-                Log.d("Controller", "onDataChange: myTurn: " + myTurn);
+                //myTurn = (whiteToMove == playingWhite);
             }
 
             @Override
