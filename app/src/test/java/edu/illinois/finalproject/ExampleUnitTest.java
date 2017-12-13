@@ -19,11 +19,6 @@ public class ExampleUnitTest {
 
     @Test
     public void test() throws Exception {
-        ChessBoard board = new ChessBoard();
-        for (List<List<Integer>> i : board.allMovementRays) {
-            System.out.println(i);
-        }
-        System.out.println(Character.isLowerCase('-'));
 
     }
 }

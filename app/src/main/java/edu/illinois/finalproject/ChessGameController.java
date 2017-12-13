@@ -9,6 +9,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ChessGameController {
 
     public static final int BOARD_LENGTH = 8;
@@ -36,6 +41,7 @@ public class ChessGameController {
     public static final String BOARD_DATA_KEY = "boardData";
     public static final String HOST_PLAYS_WHITE_KEY = "hostPlaysWhite";
     public static final String ID_KEY = "id";
+    public static final String GAME_CONNECTED_KEY = "gameDisconnected";
 
     //Board squares a found using charAt((BOARD_LENGTH * ROW_INDEX) + COLUMN_INDEX)
     private ChessBoard board;
@@ -46,8 +52,11 @@ public class ChessGameController {
     private DatabaseReference gameRef;
     private boolean myTurn = true;
     private boolean playingWhite;
+    private boolean gameStarted;
     private boolean isHost;
     private Square curSelectedSquare = null;
+
+    private Map<DatabaseReference, ValueEventListener> firebaseListeners = new HashMap<>();
 
     private Square[][] squares;
 
@@ -57,6 +66,7 @@ public class ChessGameController {
         isHost = true;
         this.displayer = displayer;
         board = new ChessBoard();
+        gameStarted = false;
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
@@ -81,6 +91,7 @@ public class ChessGameController {
         isHost = false;
         this.displayer = displayer;
         board = new ChessBoard();
+        gameStarted = false;
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
@@ -100,7 +111,7 @@ public class ChessGameController {
 
 
     private void setupDatabaseListeners() {
-        gameRef.child(BOARD_DATA_KEY).addValueEventListener(new ValueEventListener() {
+        ValueEventListener boardDataListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 board.setBoardAsString(dataSnapshot.getValue(String.class));
@@ -111,7 +122,9 @@ public class ChessGameController {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
-        });
+        };
+        firebaseListeners.put(gameRef.child(BOARD_DATA_KEY), boardDataListener);
+        gameRef.child(BOARD_DATA_KEY).addValueEventListener(boardDataListener);
 
         gameRef.child(HOST_PLAYS_WHITE_KEY).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -125,7 +138,7 @@ public class ChessGameController {
             }
         });
 
-        gameRef.child(WHITE_TO_MOVE_KEY).addValueEventListener(new ValueEventListener() {
+        ValueEventListener whiteToMoveListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 boolean whiteToMove = dataSnapshot.getValue(Boolean.class);
@@ -135,19 +148,24 @@ public class ChessGameController {
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
-        });
+        };
+        firebaseListeners.put(gameRef.child(WHITE_TO_MOVE_KEY), whiteToMoveListener);
+        gameRef.child(WHITE_TO_MOVE_KEY).addValueEventListener(whiteToMoveListener);
 
-        gameRef.child(GAME_STARTED_KEY).addValueEventListener(new ValueEventListener() {
+        ValueEventListener gameStartedListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue(Boolean.class)) {
+                gameStarted = dataSnapshot.getValue(Boolean.class);
+                if (gameStarted) {
                     displayer.startGame();
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
-        });
+        };
+        firebaseListeners.put(gameRef.child(GAME_STARTED_KEY), gameStartedListener);
+        gameRef.child(GAME_STARTED_KEY).addValueEventListener(gameStartedListener);
     }
 
     private void setUpSquareClickListeners() {
@@ -161,7 +179,7 @@ public class ChessGameController {
                         if ((curSelectedSquare == null &&
                             (board.getBoardAs2dArray()[targetSquare.getRow()][targetSquare.getColumn()])
                                     == EMPTY_SQUARE) ||
-                            !myTurn) {
+                            !myTurn || !gameStarted) {
                             return;
                         }
 
@@ -201,6 +219,22 @@ public class ChessGameController {
             displayer.endGame(whiteWon);
         }
 
+    }
+
+    private void removeListeners(){
+        for (DatabaseReference reference : firebaseListeners.keySet()) {
+            reference.removeEventListener(firebaseListeners.get(reference));
+        }
+    }
+
+    public void exitGame () {
+        if (gameStarted) {
+            gameRef.child(GAME_STARTED_KEY).setValue(false);
+        } else {
+            removeListeners();
+            database.getReference().child(LOBBY_LIST_KEY).child(id).setValue(null);
+            gameRef.setValue(null);
+        }
     }
 
 }

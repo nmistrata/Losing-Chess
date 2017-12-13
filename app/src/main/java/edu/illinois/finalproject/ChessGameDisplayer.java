@@ -55,14 +55,14 @@ public class ChessGameDisplayer {
         this.gridLayout= gridLayout;
         for(int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
-                ImageView curSquare = new ImageView(gridLayout.getContext());
-                setUpSquareImage(curSquare);
-                gridLayout.addView(curSquare);
+                ImageView curSquareImage = new ImageView(gridLayout.getContext());
+                setUpSquareImage(curSquareImage);
+                gridLayout.addView(curSquareImage);
 
                 //used to flip the board vertically for playing black
                 int row = flipView ? BOARD_LENGTH - 1 - i : i;
 
-                boardDisplay[row][j] = new Square(curSquare, row, j);
+                boardDisplay[row][j] = new Square(curSquareImage, row, j);
                 curDisplayedGameState[i][j] = EMPTY_SQUARE;
             }
         }
