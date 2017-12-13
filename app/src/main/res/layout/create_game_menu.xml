@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/createGameWhitePawnImage"
             app:layout_constraintLeft_toRightOf="@+id/createGameWhitePawnImage"
-            app:srcCompat="@drawable/black_pawn" />
+            app:srcCompat="@drawable/black_pawn"/>
 
         <RadioButton
             android:id="@+id/whitePawnRadioButton"
@@ -39,8 +39,7 @@
             app:layout_constraintRight_toRightOf="@+id/createGameWhitePawnImage"
             app:layout_constraintTop_toBottomOf="@+id/createGameWhitePawnImage"
             android:layout_marginLeft="3dp"
-            app:layout_constraintLeft_toLeftOf="@+id/createGameWhitePawnImage"
-            android:layout_marginStart="3dp" />
+            app:layout_constraintLeft_toLeftOf="@+id/createGameWhitePawnImage"/>
 
         <RadioButton
             android:id="@+id/blackPawnRadioButton"
@@ -145,7 +144,6 @@
         android:textColor="@color/menuBackground"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginTop="8dp"

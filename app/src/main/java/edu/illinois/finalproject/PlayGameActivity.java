@@ -1,5 +1,6 @@
 package edu.illinois.finalproject;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,10 +24,6 @@ public class PlayGameActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_view);
 
-        GridLayout gameGridLayout = (GridLayout) findViewById(R.id.gameGridLayout);
-        TextView whoseTurnIsIt = (TextView) findViewById(R.id.whoseTurnIsItTextView);
-        TextView hasGameStarted = (TextView) findViewById(R.id.hasGameStartedTextView);
-
         final Intent intent = getIntent();
         boolean gameWasJustCreated =
                 !(intent.getBooleanExtra(ChessGameController.GAME_STARTED_KEY, true));
@@ -39,17 +36,23 @@ public class PlayGameActivity extends AppCompatActivity{
         ChessGameDisplayer displayer;
 
         if (gameWasJustCreated) {
-            displayer = new ChessGameDisplayer(gameGridLayout, whoseTurnIsIt,
-                    hasGameStarted, !hostPlaysWhite);
+            displayer = new ChessGameDisplayer(this, !hostPlaysWhite);
             controller = new ChessGameController(displayer, lobbyName, hostPlaysWhite);
         } else {
-            displayer = new ChessGameDisplayer(gameGridLayout, whoseTurnIsIt,
-                    hasGameStarted, hostPlaysWhite);
+            displayer = new ChessGameDisplayer(this, hostPlaysWhite);
 
             String id = intent.getStringExtra(ChessGameController.ID_KEY);
             Log.d("PlayGameActivity", "id:  " + id);
             controller = new ChessGameController(id, displayer);
         }
+
+        Button returnToMenuButton = (Button) findViewById(R.id.returnToMenuButton);
+        returnToMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     @Override
@@ -69,7 +72,6 @@ public class PlayGameActivity extends AppCompatActivity{
         quitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                controller.exitGame();
                 finish();
             }
         });
@@ -81,5 +83,11 @@ public class PlayGameActivity extends AppCompatActivity{
             }
         });
         alertDialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        controller.exitGame();
+        super.onDestroy();
     }
 }

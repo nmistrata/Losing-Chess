@@ -56,8 +56,7 @@ public class CreateGameActivity extends AppCompatActivity{
                 playGameIntent.putExtra(ChessGameController.HOST_PLAYS_WHITE_KEY, playingWhite);
                 playGameIntent.putExtra(ChessGameController.GAME_STARTED_KEY, false);
                 context.startActivity(playGameIntent);
-
-
+                finish();
             }
         });
 

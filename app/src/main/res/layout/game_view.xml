@@ -34,32 +34,53 @@
     </FrameLayout>
 
     <TextView
-        android:id="@+id/hasGameStartedTextView"
+        android:id="@+id/gameStatusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="37dp"
-        android:layout_marginTop="8dp"
         android:text="Waiting for someone to join"
         android:textColor="@color/darkMenuBackground"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gameBoardFrame"
+        app:layout_constraintBottom_toTopOf="@+id/whoseTurnIsItTextView"
+        android:layout_marginTop="0dp"
+        android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gameBoardFrame" />
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/whoseTurnIsItTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
         android:text="Game has not started"
         android:textColor="@color/darkMenuBackground"
         android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="@+id/hasGameStartedTextView"
-        app:layout_constraintRight_toRightOf="@+id/hasGameStartedTextView"
-        app:layout_constraintTop_toBottomOf="@+id/hasGameStartedTextView" />
+        app:layout_constraintBottom_toTopOf="@+id/returnToMenuButton"
+        app:layout_constraintTop_toBottomOf="@+id/gameStatusTextView"
+        android:layout_marginRight="8dp"
+        app:layout_constraintVertical_bias="0.498"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <Button
+        android:id="@+id/returnToMenuButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/rounded_button"
+        android:padding="16dp"
+        android:text="Return To Menu"
+        android:textColor="@color/menuBackground"
+        android:textSize="24sp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/whoseTurnIsItTextView" />
 
 </android.support.constraint.ConstraintLayout>

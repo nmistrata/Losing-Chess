@@ -3,8 +3,9 @@ package edu.illinois.finalproject;
 import android.app.Activity;
 import android.support.constraint.ConstraintLayout;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -38,21 +39,25 @@ public class ChessGameDisplayer {
     private char[][] curDisplayedGameState;
     Square[][] boardDisplay;
     GridLayout gridLayout;
-    TextView whoseTurnIsit;
-    TextView gameHasStarted;
+    TextView whoseTurnIsitText;
+    TextView gameStatusText;
+    Button returnToMenuButton;
+    boolean gameFinished = false;
 
-    public ChessGameDisplayer(GridLayout gridLayout, TextView whoseTurnIsitTextView,
-                              TextView hasGameStartedTextView, boolean flipView) {
+    public ChessGameDisplayer(Activity activity, boolean flipView) {
         boardDisplay = new Square[BOARD_LENGTH][BOARD_LENGTH];
         curDisplayedGameState = new char[BOARD_LENGTH][BOARD_LENGTH];
 
-        this.whoseTurnIsit = whoseTurnIsitTextView;
-        whoseTurnIsitTextView.setText(WHITE_TO_MOVE);
+        this.whoseTurnIsitText = (TextView) activity.findViewById(R.id.whoseTurnIsItTextView);
+        whoseTurnIsitText.setText(WHITE_TO_MOVE);
 
-        this.gameHasStarted = hasGameStartedTextView;
-        hasGameStartedTextView.setText("Waiting for a player to join");
+        this.gameStatusText = (TextView) activity.findViewById(R.id.gameStatusTextView);
+        gameStatusText.setText("Waiting for a player to join");
 
-        this.gridLayout= gridLayout;
+        returnToMenuButton = (Button) activity.findViewById(R.id.returnToMenuButton);
+        returnToMenuButton.setVisibility(View.GONE);
+
+        this.gridLayout = (GridLayout) activity.findViewById(R.id.gameGridLayout);
         for(int i = 0; i < BOARD_LENGTH; i++) {
             for (int j = 0; j < BOARD_LENGTH; j++) {
                 ImageView curSquareImage = new ImageView(gridLayout.getContext());
@@ -107,18 +112,27 @@ public class ChessGameDisplayer {
 
     public void setWhiteToMove(boolean whiteToMove) {
         if (whiteToMove) {
-            whoseTurnIsit.setText(WHITE_TO_MOVE);
+            whoseTurnIsitText.setText(WHITE_TO_MOVE);
         } else {
-            whoseTurnIsit.setText(BLACK_TO_MOVE);
+            whoseTurnIsitText.setText(BLACK_TO_MOVE);
         }
     }
 
     public void startGame() {
-        gameHasStarted.setText("Game has started");
+        gameStatusText.setText("Game has started");
     }
     public void endGame(boolean whiteHasWon) {
-        gameHasStarted.setText("Game Over");
-        whoseTurnIsit.setText((whiteHasWon ? "White" : "Black") + " has won!");
+        gameFinished = true;
+        gameStatusText.setText("Game Over");
+        whoseTurnIsitText.setText((whiteHasWon ? "White" : "Black") + " has won!");
+        returnToMenuButton.setVisibility(View.VISIBLE);
+    }
+    public void playerDisconnected() {
+        if (!gameFinished) {
+            gameStatusText.setText("Other player disconnected");
+            whoseTurnIsitText.setText("You should leave now");
+            returnToMenuButton.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setSquareImage(Square square, int piece) {
@@ -170,4 +184,5 @@ public class ChessGameDisplayer {
     public Square[][] getBoardDisplay() {
         return boardDisplay;
     }
+
 }

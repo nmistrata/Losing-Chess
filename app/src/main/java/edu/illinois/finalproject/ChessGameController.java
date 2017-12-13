@@ -2,6 +2,7 @@ package edu.illinois.finalproject;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,7 +60,7 @@ public class ChessGameController {
     private Map<DatabaseReference, ValueEventListener> firebaseListeners = new HashMap<>();
 
     private Square[][] squares;
-
+    private Button returnToMenuButton;
 
     //used for creating games
     public ChessGameController(ChessGameDisplayer displayer, String lobbyName, boolean hostPlaysWhite) {
@@ -67,6 +68,7 @@ public class ChessGameController {
         this.displayer = displayer;
         board = new ChessBoard();
         gameStarted = false;
+
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
@@ -92,6 +94,7 @@ public class ChessGameController {
         this.displayer = displayer;
         board = new ChessBoard();
         gameStarted = false;
+
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
@@ -155,6 +158,9 @@ public class ChessGameController {
         ValueEventListener gameStartedListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (gameStarted && !dataSnapshot.getValue(Boolean.class)) {
+                    displayer.playerDisconnected();
+                }
                 gameStarted = dataSnapshot.getValue(Boolean.class);
                 if (gameStarted) {
                     displayer.startGame();
@@ -204,6 +210,15 @@ public class ChessGameController {
         }
     }
 
+    private void setupReturnToMenuButton() {
+        returnToMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                exitGame();
+            }
+        });
+    }
+
     private void endTurn(){
         gameRef.child(WHITE_TO_MOVE_KEY).setValue(!playingWhite);
         pushBoardToFirebase();
@@ -228,10 +243,10 @@ public class ChessGameController {
     }
 
     public void exitGame () {
+        removeListeners();
         if (gameStarted) {
             gameRef.child(GAME_STARTED_KEY).setValue(false);
         } else {
-            removeListeners();
             database.getReference().child(LOBBY_LIST_KEY).child(id).setValue(null);
             gameRef.setValue(null);
         }
