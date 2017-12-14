@@ -199,12 +199,12 @@ public class ChessBoard {
         board[endSquare] = board[startSquare];
 
         //white pawn promotion
-        if (endSquare < BOARD_MAP[0][BOARD_LENGTH - 1] && endSquare > BOARD_MAP[0][0] &&
+        if (endSquare <= BOARD_MAP[0][BOARD_LENGTH - 1] && endSquare >= BOARD_MAP[0][0] &&
                 board[endSquare] == WHITE_PAWN) {
             board[endSquare] = WHITE_QUEEN;
         }
         //black pawn promotion
-        if (endSquare < BOARD_MAP[6][BOARD_LENGTH - 1] && endSquare > BOARD_MAP[6][0] &&
+        if (endSquare <= BOARD_MAP[BOARD_LENGTH - 1][BOARD_LENGTH -  1] && endSquare >= BOARD_MAP[6][0] &&
                 board[endSquare] == BLACK_PAWN) {
             board[endSquare] = BLACK_QUEEN;
         }

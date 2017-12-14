@@ -15,6 +15,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         Button createGameButton = (Button) findViewById(R.id.createGameButton);
         Button joinGameButton = (Button) findViewById(R.id.joinGameButton);
+        Button rulesButton = (Button) findViewById(R.id.rulesButton);
 
         createGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -31,6 +32,16 @@ public class MainMenuActivity extends AppCompatActivity {
                 final Context context = v.getContext();
                 Intent lobbyListIntent = new Intent(context, LobbyListActivity.class);
                 context.startActivity(lobbyListIntent);
+            }
+        });
+
+        rulesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                final Context context = v.getContext();
+                Intent rulesIntent = new Intent(context, RulesActivity.class);
+                context.startActivity(rulesIntent);
             }
         });
     }

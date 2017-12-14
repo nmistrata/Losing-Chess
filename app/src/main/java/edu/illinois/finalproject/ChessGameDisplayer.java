@@ -1,6 +1,7 @@
 package edu.illinois.finalproject;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.constraint.ConstraintLayout;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -37,14 +38,17 @@ public class ChessGameDisplayer {
     public static final String BLACK_TO_MOVE = "Black to move";
 
     private char[][] curDisplayedGameState;
-    Square[][] boardDisplay;
-    GridLayout gridLayout;
-    TextView whoseTurnIsitText;
-    TextView gameStatusText;
-    Button returnToMenuButton;
+    private Square[][] boardDisplay;
+    private Context context;
+    private GridLayout gridLayout;
+    private TextView whoseTurnIsitText;
+    private TextView gameStatusText;
+    private Button returnToMenuButton;
     boolean gameFinished = false;
 
     public ChessGameDisplayer(Activity activity, boolean flipView) {
+        context = activity;
+
         boardDisplay = new Square[BOARD_LENGTH][BOARD_LENGTH];
         curDisplayedGameState = new char[BOARD_LENGTH][BOARD_LENGTH];
 
@@ -183,6 +187,10 @@ public class ChessGameDisplayer {
 
     public Square[][] getBoardDisplay() {
         return boardDisplay;
+    }
+
+    public Context getContext() {
+        return context;
     }
 
 }

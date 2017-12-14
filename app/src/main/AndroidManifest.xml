@@ -20,6 +20,7 @@
         <activity android:name=".CreateGameActivity" android:screenOrientation="portrait" />
         <activity android:name=".PlayGameActivity" android:screenOrientation="portrait"/>
         <activity android:name=".LobbyListActivity" android:screenOrientation="portrait"/>
+        <activity android:name=".RulesActivity" android:screenOrientation="portrait"/>
     </application>
 
 </manifest>
