@@ -13,6 +13,8 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu);
 
+        final SoundPlayer soundPlayer = new SoundPlayer(this);
+
         Button createGameButton = (Button) findViewById(R.id.createGameButton);
         Button joinGameButton = (Button) findViewById(R.id.joinGameButton);
         Button rulesButton = (Button) findViewById(R.id.rulesButton);
@@ -20,6 +22,7 @@ public class MainMenuActivity extends AppCompatActivity {
         createGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPlayer.playButtonPressSound();
                 final Context context = v.getContext();
                 Intent createGameIntent = new Intent(context, CreateGameActivity.class);
                 context.startActivity(createGameIntent);
@@ -29,6 +32,7 @@ public class MainMenuActivity extends AppCompatActivity {
         joinGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPlayer.playButtonPressSound();
                 final Context context = v.getContext();
                 Intent lobbyListIntent = new Intent(context, LobbyListActivity.class);
                 context.startActivity(lobbyListIntent);
@@ -38,7 +42,7 @@ public class MainMenuActivity extends AppCompatActivity {
         rulesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                soundPlayer.playButtonPressSound();
                 final Context context = v.getContext();
                 Intent rulesIntent = new Intent(context, RulesActivity.class);
                 context.startActivity(rulesIntent);

@@ -23,7 +23,7 @@ public class LobbyListActivity extends AppCompatActivity {
         setContentView(R.layout.lobby_list);
 
         RecyclerView lobbyList = (RecyclerView) findViewById(R.id.recyclerView);
-        final GameLobbyAdapter gameLobbyAdapter = new GameLobbyAdapter();
+        final GameLobbyAdapter gameLobbyAdapter = new GameLobbyAdapter(this);
         lobbyList.setAdapter(gameLobbyAdapter);
         lobbyList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false));
 

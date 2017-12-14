@@ -18,6 +18,8 @@ public class CreateGameActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_game_menu);
 
+        final SoundPlayer soundPlayer = new SoundPlayer(this);
+
         final RadioButton blackPawnRadioButton = (RadioButton) findViewById(R.id.blackPawnRadioButton);
         final RadioButton whitePawnRadioButton = (RadioButton) findViewById(R.id.whitePawnRadioButton);
         final EditText lobbyNameEditText = (EditText) findViewById(R.id.lobbyNameEditText);
@@ -28,6 +30,7 @@ public class CreateGameActivity extends AppCompatActivity{
         blackPawnRadioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPlayer.playColorSelectSound();
                 whitePawnRadioButton.setChecked(false);
                 blackPawnRadioButton.setChecked(true);
             }
@@ -36,6 +39,7 @@ public class CreateGameActivity extends AppCompatActivity{
         whitePawnRadioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPlayer.playColorSelectSound();
                 whitePawnRadioButton.setChecked(true);
                 blackPawnRadioButton.setChecked(false);
             }
@@ -44,6 +48,7 @@ public class CreateGameActivity extends AppCompatActivity{
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPlayer.playButtonPressSound();
                 boolean playingWhite = whitePawnRadioButton.isChecked();
                 String lobbyName = lobbyNameEditText.getText().toString();
                 if (lobbyName.isEmpty()) {

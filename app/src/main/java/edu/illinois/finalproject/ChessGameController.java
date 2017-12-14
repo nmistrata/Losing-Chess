@@ -66,10 +66,7 @@ public class ChessGameController {
 
     private Square[][] squares;
 
-    private SoundPool soundPool;
-    private int errorSoundId;
-    private int comletedMoveId;
-    private int selectPieceId;
+    private SoundPlayer soundPlayer;
 
     //used for creating games
     public ChessGameController(ChessGameDisplayer displayer, String lobbyName, boolean hostPlaysWhite) {
@@ -78,7 +75,7 @@ public class ChessGameController {
         board = new ChessBoard();
         gameStarted = false;
 
-        setupSoundPool();
+        soundPlayer = new SoundPlayer(displayer.getContext());
 
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
@@ -106,6 +103,8 @@ public class ChessGameController {
         board = new ChessBoard();
         gameStarted = false;
 
+        soundPlayer = new SoundPlayer(displayer.getContext());
+
         squares = displayer.getBoardDisplay();
         setUpSquareClickListeners();
 
@@ -120,20 +119,6 @@ public class ChessGameController {
 
     private void pushBoardToFirebase() {
         gameRef.child(BOARD_DATA_KEY).setValue(board.getBoardAsString());
-    }
-
-    private void setupSoundPool() {
-        SoundPool.Builder soundPoolBuilder =  new SoundPool.Builder();
-        soundPoolBuilder.setMaxStreams(2);
-        soundPoolBuilder.setAudioAttributes(new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build());
-
-        Context context = displayer.getContext();
-        soundPool = soundPoolBuilder.build();
-        errorSoundId = soundPool.load(context, R.raw.error_beep, 1);
-        comletedMoveId = soundPool.load(context, R.raw.chess_move, 1);
     }
 
     private void setupDatabaseListeners() {
@@ -222,10 +207,10 @@ public class ChessGameController {
                             //if the move succeeds, update displayer and end my turn.
                             if (board.makeMove(curSelectedSquare.getRow(), curSelectedSquare.getColumn(),
                                          targetSquare.getRow(), targetSquare.getColumn())) {
-                                soundPool.play(comletedMoveId, 1, 1, 1, 0, 1);
+                                soundPlayer.playCompletedMoveSound();
                                 endTurn();
                             } else {
-                                soundPool.play(errorSoundId, 1, 1, 1, 0, 1);
+                                soundPlayer.playErrorSound();
                             }
                             curSelectedSquare.unhighlight();
                             curSelectedSquare = null;

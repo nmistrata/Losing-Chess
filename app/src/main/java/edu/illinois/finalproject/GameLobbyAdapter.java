@@ -15,6 +15,11 @@ import java.util.List;
 
 public class GameLobbyAdapter extends RecyclerView.Adapter<GameLobbyAdapter.ViewHolder>{
     private List<GameLobby> lobbies = new ArrayList<>();
+    private SoundPlayer soundPlayer;
+
+    public GameLobbyAdapter(Context context) {
+        soundPlayer = new SoundPlayer(context);
+    }
 
     public void setLobbies(List<GameLobby> lobbies) {
         this.lobbies = lobbies;
@@ -55,6 +60,7 @@ public class GameLobbyAdapter extends RecyclerView.Adapter<GameLobbyAdapter.View
         holder.joinGameButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                soundPlayer.playButtonPressSound();
                 final Context context = v.getContext();
                 Intent joinGameIntent = new Intent(context, PlayGameActivity.class);
                 joinGameIntent.putExtra(
